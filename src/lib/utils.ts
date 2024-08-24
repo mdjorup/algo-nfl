@@ -69,3 +69,18 @@ export const getOdds = async (): Promise<Record<string, EventOdds>> => {
 
     return res;
 };
+
+export const calculateWinProb = (team: string, odds: EventOdds) => {
+    const home_odds = odds.home_odds;
+    const away_odds = odds.away_odds;
+
+    const home_prob = 1 / home_odds;
+    const away_prob = 1 / away_odds;
+
+    const total_prob = home_prob + away_prob;
+
+    const home_win_prob = home_prob / total_prob;
+    const away_win_prob = away_prob / total_prob;
+
+    return team === odds.home_team ? home_win_prob : away_win_prob;
+};
