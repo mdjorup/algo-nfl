@@ -1,1 +1,24 @@
-{"id": "0ce683697325d7715a78889240d82cc7", "sport_key": "americanfootball_nfl", "sport_title": "NFL", "commence_time": "2024-12-29T18:00:00Z", "home_team": "New York Giants", "away_team": "Indianapolis Colts", "bookmakers": [{"key": "draftkings", "title": "DraftKings", "markets": [{"key": "h2h", "last_update": "2024-08-23T14:29:51Z", "outcomes": [{"name": "Indianapolis Colts", "price": 1.8}, {"name": "New York Giants", "price": 2.05}]}]}]}
+{
+    "id": "0ce683697325d7715a78889240d82cc7",
+    "sport_key": "americanfootball_nfl",
+    "sport_title": "NFL",
+    "commence_time": "2024-12-29T18:00:00Z",
+    "home_team": "New York Giants",
+    "away_team": "Indianapolis Colts",
+    "bookmakers": [
+        {
+            "key": "draftkings",
+            "title": "DraftKings",
+            "markets": [
+                {
+                    "key": "h2h",
+                    "last_update": "2024-08-23T14:29:51Z",
+                    "outcomes": [
+                        { "name": "Indianapolis Colts", "price": 1.8 },
+                        { "name": "New York Giants", "price": 2.05 }
+                    ]
+                }
+            ]
+        }
+    ]
+}

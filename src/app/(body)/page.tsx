@@ -1,21 +1,22 @@
-import { promises as fs } from 'fs';
+import { getEvents, getOdds } from '@/lib/utils';
 
 
 export default async function Home() {
 
-  const file = await fs.readFile(process.cwd() + '/src/data/events.json', 'utf8');
-  const data = JSON.parse(file);
-  
 
-
+  const events = await getEvents();
+  const odds = await getOdds()
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-between">
       <p>Title</p>
       <p>This is another thing</p>
-      {JSON.stringify(data)}
-      
-      
+      <div>
+
+        {JSON.stringify(odds)}
+      </div>
+
+
     </main>
   );
 }
