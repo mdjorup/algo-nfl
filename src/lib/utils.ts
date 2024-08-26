@@ -1,86 +1,49 @@
 import { type ClassValue, clsx } from "clsx";
-import * as fs from "fs";
-import * as path from "path";
+import { addDays } from "date-fns";
 import { twMerge } from "tailwind-merge";
+import { seasonStart } from "./consts";
+import { query } from "./db";
 
 export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs));
 }
 
-export const getEvents = async (): Promise<ODDSAPI_Event[]> => {
-    const path = await fs.promises.readFile(
-        process.cwd() + "/src/data/events.json",
-        "utf8"
-    );
+export const getCurrentWeekRange = () => {
+    const now = new Date();
 
-    const data = JSON.parse(path);
+    let week = 1;
 
-    return data;
-};
+    let start = new Date(seasonStart);
+    let end = addDays(start, 7);
 
-export const getOdds = async (): Promise<Record<string, EventOdds>> => {
-    // go through everything in the data/odds folder
-
-    const dirPath = process.cwd() + "/src/data/odds";
-
-    const res: Record<string, EventOdds> = {};
-
-    const list = await fs.promises.readdir(dirPath);
-
-    for (const file of list) {
-        const filePath = path.join(dirPath, file);
-        const data = await fs.promises.readFile(filePath, "utf8");
-        const odds: ODDSAPI_Odds = JSON.parse(data);
-
-        const home_team = odds.home_team;
-        const away_team = odds.away_team;
-
-        let total_home_odds = 0;
-        let total_away_odds = 0;
-        let n_bookmakers = 0;
-
-        odds.bookmakers.forEach((bookmaker) => {
-            bookmaker.markets.forEach((market) => {
-                if (market.key !== "h2h") {
-                    return;
-                }
-                market.outcomes.forEach((outcome) => {
-                    if (outcome.name === home_team) {
-                        total_home_odds += outcome.price;
-                    } else if (outcome.name === away_team) {
-                        total_away_odds += outcome.price;
-                    }
-                });
-            });
-            n_bookmakers++;
-        });
-
-        const avg_home_odds = total_home_odds / n_bookmakers;
-        const avg_away_odds = total_away_odds / n_bookmakers;
-
-        res[odds.id] = {
-            away_odds: avg_away_odds,
-            home_odds: avg_home_odds,
-            home_team: home_team,
-            away_team: away_team,
-            updated: new Date(),
-        };
+    while (now > end) {
+        start = end;
+        end = addDays(start, 7);
+        week++;
     }
 
-    return res;
+    return { week, start, end };
 };
 
-export const calculateWinProb = (team: string, odds: EventOdds) => {
-    const home_odds = odds.home_odds;
-    const away_odds = odds.away_odds;
+export const getCurrentWeekEvents = async () => {
+    const { week, start, end } = getCurrentWeekRange();
 
-    const home_prob = 1 / home_odds;
-    const away_prob = 1 / away_odds;
+    const events = await query<
+        Event & {
+            home_name: string;
+            away_name: string;
+        }
+    >(
+        `SELECT e.*, ht.name as home_name, at.name as away_name
+            FROM events e
+            LEFT JOIN teams ht ON e.home_team_id = ht.id
+            LEFT JOIN teams at ON e.away_team_id = at.id
+            where e.commence_time between $1 and $2
+            `,
+        [start, end]
+    );
 
-    const total_prob = home_prob + away_prob;
+    const latestOdds = await query;
 
-    const home_win_prob = home_prob / total_prob;
-    const away_win_prob = away_prob / total_prob;
-
-    return team === odds.home_team ? home_win_prob : away_win_prob;
+    return events;
 };

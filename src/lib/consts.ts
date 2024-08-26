@@ -32,3 +32,5 @@ export const TEAMS = [
     "Tennessee Titans",
     "Washington Commanders",
 ];
+
+export const seasonStart = new Date("2024-09-04T00:00:00Z");

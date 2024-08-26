@@ -1,13 +1,15 @@
-interface ODDSAPI_Event {
+export interface Event {
     id: string;
-    sport_key: string;
-    sport_title: string;
-    commence_time: string;
-    home_team: string;
-    away_team: string;
+    season: string;
+    home_team_id: string;
+    away_team_id: string;
+    commence_time: Date;
+    completed: boolean;
+    home_score: number;
+    away_score: number;
 }
 
-interface ODDSAPI_Odds {
+export interface ODDSAPI_Odds {
     id: string;
     sport_key: string;
     sport_title: string;
@@ -28,10 +30,12 @@ interface ODDSAPI_Odds {
     }[];
 }
 
-interface EventOdds {
-    home_team: string;
-    away_team: string;
+export interface EventOdds {
+    id: string;
+    event_id: string;
+    timestamp: Date;
     home_odds: number;
     away_odds: number;
-    updated: Date;
 }
+
+export interface FullEvent {}

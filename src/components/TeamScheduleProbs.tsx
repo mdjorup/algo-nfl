@@ -1,5 +1,4 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { calculateWinProb } from '@/lib/utils';
 import { format } from 'date-fns';
 import Image from "next/image";
 import React from 'react';
@@ -7,7 +6,7 @@ import { Badge } from "./ui/badge";
 
 interface TeamScheduleProbsProps extends React.HTMLAttributes<HTMLDivElement> {
   team: string;
-  schedule: ODDSAPI_Event[];
+  schedule: Event[];
   odds: Record<string, EventOdds>;
 }
 
@@ -27,7 +26,7 @@ const TeamScheduleProbs = ({ team, schedule, odds }: TeamScheduleProbsProps) => 
           {schedule.map(({ id, commence_time, home_team, away_team }) => {
             const isHome = home_team === team;
             const opponent = isHome ? away_team : home_team;
-            const winProb = calculateWinProb(team, odds[id]);
+            const winProb = 0;
             return (
               <div key={id} className="flex items-center space-x-2 bg-gray-100 rounded-lg p-2">
                 <span className="text-xs font-semibold">{format(new Date(commence_time), 'MM/dd')}</span>
