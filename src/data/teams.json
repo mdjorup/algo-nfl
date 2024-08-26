@@ -1,0 +1,58 @@
+[
+    { "name": "Arizona Cardinals", "division": "NFC West", "season": "2024" },
+    { "name": "Atlanta Falcons", "division": "NFC South", "season": "2024" },
+    { "name": "Baltimore Ravens", "division": "AFC North", "season": "2024" },
+    { "name": "Buffalo Bills", "division": "AFC East", "season": "2024" },
+    { "name": "Carolina Panthers", "division": "NFC South", "season": "2024" },
+    { "name": "Chicago Bears", "division": "NFC North", "season": "2024" },
+    { "name": "Cincinnati Bengals", "division": "AFC North", "season": "2024" },
+    { "name": "Cleveland Browns", "division": "AFC North", "season": "2024" },
+    { "name": "Dallas Cowboys", "division": "NFC East", "season": "2024" },
+    { "name": "Denver Broncos", "division": "AFC West", "season": "2024" },
+    { "name": "Detroit Lions", "division": "NFC North", "season": "2024" },
+    { "name": "Green Bay Packers", "division": "NFC North", "season": "2024" },
+    { "name": "Houston Texans", "division": "AFC South", "season": "2024" },
+    { "name": "Indianapolis Colts", "division": "AFC South", "season": "2024" },
+    {
+        "name": "Jacksonville Jaguars",
+        "division": "AFC South",
+        "season": "2024"
+    },
+    { "name": "Kansas City Chiefs", "division": "AFC West", "season": "2024" },
+    { "name": "Las Vegas Raiders", "division": "AFC West", "season": "2024" },
+    {
+        "name": "Los Angeles Chargers",
+        "division": "AFC West",
+        "season": "2024"
+    },
+    { "name": "Los Angeles Rams", "division": "NFC West", "season": "2024" },
+    { "name": "Miami Dolphins", "division": "AFC East", "season": "2024" },
+    { "name": "Minnesota Vikings", "division": "NFC North", "season": "2024" },
+    {
+        "name": "New England Patriots",
+        "division": "AFC East",
+        "season": "2024"
+    },
+    { "name": "New Orleans Saints", "division": "NFC South", "season": "2024" },
+    { "name": "New York Giants", "division": "NFC East", "season": "2024" },
+    { "name": "New York Jets", "division": "AFC East", "season": "2024" },
+    { "name": "Philadelphia Eagles", "division": "NFC East", "season": "2024" },
+    {
+        "name": "Pittsburgh Steelers",
+        "division": "AFC North",
+        "season": "2024"
+    },
+    { "name": "San Francisco 49ers", "division": "NFC West", "season": "2024" },
+    { "name": "Seattle Seahawks", "division": "NFC West", "season": "2024" },
+    {
+        "name": "Tampa Bay Buccaneers",
+        "division": "NFC South",
+        "season": "2024"
+    },
+    { "name": "Tennessee Titans", "division": "AFC South", "season": "2024" },
+    {
+        "name": "Washington Commanders",
+        "division": "NFC East",
+        "season": "2024"
+    }
+]

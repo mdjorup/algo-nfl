@@ -37,3 +37,7 @@ next-env.d.ts
 
 
 .vscode
+
+venv
+__pycache__
+.env
