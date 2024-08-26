@@ -1,6 +1,6 @@
 import ComingSoon from '@/components/ComingSoon'
 
-const AlgorithmPage = () => {
+const PlayoffPicturePage = () => {
   return (
     <div>
       <ComingSoon />
@@ -8,4 +8,4 @@ const AlgorithmPage = () => {
   )
 }
 
-export default AlgorithmPage
+export default PlayoffPicturePage

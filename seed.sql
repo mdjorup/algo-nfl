@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS events (
 CREATE TABLE IF NOT EXISTS event_odds (
     id UUID PRIMARY KEY,
     event_id VARCHAR(255) REFERENCES events(id),
-    timestamp TIMESTAMP NOT NULL,
+    timestamp TIMESTAMPTZ NOT NULL,
     home_odds NUMERIC(10, 2) NOT NULL,
     away_odds NUMERIC(10, 2) NOT NULL
 );
@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS event_odds (
 CREATE TABLE IF NOT EXISTS ranking_sets (
     id UUID PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    timestamp TIMESTAMP NOT NULL
+    timestamp TIMESTAMPTZ NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS rankings (
