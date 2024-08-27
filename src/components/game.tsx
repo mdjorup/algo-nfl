@@ -1,36 +1,60 @@
+import { COLORS } from "@/lib/consts";
+import { getWinProbability } from "@/lib/utils";
 import { format, isBefore } from "date-fns";
-import { Card, CardDescription, CardHeader, CardTitle } from "./ui/card";
+import Image from "next/image";
+import { Badge } from "./ui/badge";
+import { Card } from "./ui/card";
 
 interface GameComponentProps {
   event_id: string;
   home_team: string;
   away_team: string;
   commence_time: Date;
-  home_team_win_prob: number;
-  away_team_win_prob: number;
+  home_team_odds: number;
+  away_team_odds: number;
   home_score?: number;
   away_score?: number;
   complete: boolean;
 }
 
-const Game = ({ event_id, home_team, away_team, commence_time, home_team_win_prob, away_team_win_prob, home_score, away_score, complete }: GameComponentProps) => {
+export const TeamRow = ({ team_name, win_probability, isHomeTeam }: { team_name: string, win_probability: number, isHomeTeam: boolean }) => {
 
-  const gameDescription = complete ? "Final" : isBefore(new Date(), commence_time) ? format(commence_time, "E..EEE @ p") : "Live"
+  const display_name = team_name.split(" ").pop() || team_name
+
+  const team_color = COLORS[team_name]
+
+  const display_probability = (win_probability * 100).toFixed(1)
+  return (
+    <div className="flex justify-between items-center w-full" >
+      <Image src={`/${team_name}.png`} alt={team_name} width={35} height={35} />
+      <div className="flex w-full items-center justify-between pl-4">
+        <div className="text-lg font-bold">{display_name}</div>
+        <Badge variant={win_probability > .5 ? "default" : win_probability < 0.5 ? "destructive" : "outline"}>{display_probability}%</Badge>
+      </div>
+    </div>
+  )
+}
+
+const Game = ({ event_id, home_team, away_team, commence_time, home_team_odds, away_team_odds, home_score, away_score, complete }: GameComponentProps) => {
+  const gameDescription = complete ? "Final" : isBefore(new Date(), commence_time) ? format(commence_time, "EEE @ p") : "Live"
+
+  const awayColor = COLORS[away_team]
+  const homeColor = COLORS[home_team]
+
+  const { homeWinProbability, awayWinProbability } = getWinProbability(home_team_odds, away_team_odds)
+
 
 
   return (
-    <Card>
-      <CardHeader>
-        <CardDescription>
-          {gameDescription}
-        </CardDescription>
-        <CardTitle>
+    <Card className="relative overflow-hidden p-5">
+      <div>
+        <p>{format(commence_time, "EEE @ p")}</p>
+      </div>
 
-
-        </CardTitle>
-
-      </CardHeader>
-
+      <div className="w-full mt-2 flex flex-col gap-1">
+        <TeamRow team_name={away_team} win_probability={awayWinProbability} isHomeTeam={false} />
+        <TeamRow team_name={home_team} win_probability={homeWinProbability} isHomeTeam={true} />
+      </div>
     </Card>
   )
 }
