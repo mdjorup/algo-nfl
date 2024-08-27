@@ -1,0 +1,6 @@
+data
+.next
+.vscode
+node_modules
+scripts
+venv
