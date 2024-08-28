@@ -13,6 +13,7 @@ types.setTypeParser(types.builtins.NUMERIC, (val) => parseFloat(val));
 types.setTypeParser(types.builtins.INT8, (val) => parseInt(val));
 types.setTypeParser(types.builtins.INT4, (val) => parseInt(val));
 types.setTypeParser(types.builtins.JSONB, (val) => JSON.parse(val));
+types.setTypeParser(types.builtins.TIMESTAMPTZ, (val) => new Date(val));
 const pool = new Pool(dbConfig);
 
 export async function query<T>(

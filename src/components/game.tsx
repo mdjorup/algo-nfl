@@ -2,6 +2,7 @@ import { COLORS } from "@/lib/consts";
 import { getWinProbability } from "@/lib/utils";
 import { format, isBefore } from "date-fns";
 import Image from "next/image";
+import DateRender from "./DateRender";
 import { Badge } from "./ui/badge";
 import { Card } from "./ui/card";
 
@@ -48,8 +49,7 @@ const Game = ({ event_id, home_team, away_team, commence_time, home_team_odds, a
   return (
     <Card className="relative overflow-hidden p-5">
       <div>
-        <p>{format(commence_time, "EEE @ p")}</p>
-      </div>
+        <DateRender date={commence_time} dateFormat="EEE @ p" /></div>
 
       <div className="w-full mt-2 flex flex-col gap-1">
         <TeamRow team_name={away_team} win_probability={awayWinProbability} isHomeTeam={false} />
