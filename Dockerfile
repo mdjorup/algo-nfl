@@ -1,4 +1,5 @@
-FROM node:22-alpine
+FROM node:22-alpine as base
+ARG SETUP_ENVINROMENT=production
 
 
 # Dependencies 
@@ -25,10 +26,13 @@ RUN pnpm install --frozen-lockfile --prefer-frozen-lockfile
 # Builder
 FROM base AS builder
 
+
 RUN corepack enable
 RUN corepack prepare pnpm@latest --activate
 
 WORKDIR /app
+
+COPY .env.$SETUP_ENVINROMENT .env
 
 # copy the dependencies installed in the deps build stage above 
 COPY --from=deps /app/node_modules ./node_modules
@@ -40,7 +44,7 @@ RUN pnpm build
 
 FROM base AS runner
 # Set NODE_ENV to production
-ENV NODE_ENV production
+ENV NODE_ENV $SETUP_ENVINROMENT
 # Disable Next.js telemetry
 ENV NEXT_TELEMETRY_DISABLED 1
 
