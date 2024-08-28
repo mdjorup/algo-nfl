@@ -4,3 +4,10 @@ data
 node_modules
 scripts
 venv
+
+Dockerfile
+.dockerignore
+npm-debug.log
+README.md
+docker
+.git

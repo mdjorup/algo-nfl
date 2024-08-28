@@ -27,7 +27,7 @@ conn = psycopg2.connect(
 
 cwd = os.getcwd()
 
-with open(cwd + "/src/data/events.json") as file:
+with open(cwd + "/data/events.json") as file:
     events = json.load(file)
 
 # insert the teams into the database if the team name and season does not exist

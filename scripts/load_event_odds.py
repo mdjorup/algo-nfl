@@ -36,10 +36,10 @@ def get_all_game_odds():
 
     data = []
 
-    files = os.listdir(cwd + "/src/data/odds")
+    files = os.listdir(cwd + "/data/odds")
 
     for file in files:
-        with open(f"{cwd + '/src/data/odds'}/{file}", "r") as infile:
+        with open(f"{cwd + '/data/odds'}/{file}", "r") as infile:
             data.append(json.load(infile))
 
     # sort the data by the start time of the game

@@ -1,4 +1,4 @@
-FROM node:22-alpine as base
+FROM node:22-alpine AS base
 ARG SETUP_ENVINROMENT=production
 
 
@@ -44,9 +44,9 @@ RUN pnpm build
 
 FROM base AS runner
 # Set NODE_ENV to production
-ENV NODE_ENV $SETUP_ENVINROMENT
+ENV NODE_ENV=$SETUP_ENVINROMENT
 # Disable Next.js telemetry
-ENV NEXT_TELEMETRY_DISABLED 1
+ENV NEXT_TELEMETRY_DISABLED=1
 
 
 
@@ -64,8 +64,8 @@ COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 USER nextjs
 
 EXPOSE 3000
-ENV PORT 3000
-ENV HOSTNAME "0.0.0.0"
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
 
 # Run the nextjs app
 CMD ["node", "server.js"]
