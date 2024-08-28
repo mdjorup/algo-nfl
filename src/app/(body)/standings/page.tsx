@@ -1,9 +1,7 @@
-import ComingSoon from '@/components/ComingSoon'
+import { redirect } from 'next/navigation'
 
 const StandingsPage = () => {
-  return (
-    <div><ComingSoon /> </div>
-  )
+  redirect("/standings/division")
 }
 
 export default StandingsPage
