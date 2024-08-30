@@ -4,6 +4,7 @@ import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, Tabl
 import { query } from '@/lib/db';
 import { formatAsPercent } from '@/lib/format-utils';
 import { SeasonSimulation } from '@/lib/types';
+import Image from 'next/image';
 
 
 
@@ -75,6 +76,12 @@ const PlayoffPicturePage = async () => {
 
   return (
     <div className='container mx-auto py-10'>
+      <h1 className='text-3xl font-bold mb-8'>
+        NFL Playoff Picture
+      </h1>
+      <p className='mb-8'>
+        The following table shows the playoff probabilities for each NFL team based on 100,000 simulations of the remaining games in the season. All games are simulated using the current odds of every game. The probabilities are based on the number of times each team made the playoffs, won their division, and won the conference in the simulations.
+      </p>
       <Table>
         <TableCaption>NFL Playoff Probabilities - 100,000 Simulations</TableCaption>
         <TableHeader>
@@ -88,7 +95,10 @@ const PlayoffPicturePage = async () => {
         <TableBody>
           {sorted.map((entry, index) => (
             <TableRow key={entry.id} className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
-              <TableCell className="font-medium">{entry.name}</TableCell>
+              <TableCell className="font-medium flex gap-3 justify-start items-center">
+                <Image src={`/${entry.name}.png`} alt={entry.name} width={35} height={35} />
+                {entry.name}
+              </TableCell>
               <TableCell>
                 <ProbabilityBadge probability={entry.make_playoffs_probability} />
               </TableCell>
