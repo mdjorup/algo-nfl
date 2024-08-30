@@ -4,14 +4,26 @@ import random
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from functools import cmp_to_key
-from time import time
 from typing import List
 from uuid import uuid4
 
+import psycopg2
 from average import RunningAverage
 from dotenv import load_dotenv
+from psycopg2.extras import RealDictCursor
+from tqdm import tqdm
 
 load_dotenv()
+
+CURRENT_SEASON = "2024"
+SIMULATION_GROUP = 0
+N_SIMULATIONS = 100000
+
+dbname = os.getenv("DB_DATABASE")
+user = os.getenv("DB_USER")
+password = os.getenv("DB_PASSWORD")
+host = os.getenv("DB_HOST")
+port = os.getenv("DB_PORT")
 
 
 @dataclass
@@ -52,7 +64,30 @@ def load_teams() -> List[Team]:
 
     env = os.getenv("ENV")
     if env == "prod":
-        pass
+
+        conn = psycopg2.connect(
+            dbname=dbname, user=user, password=password, host=host, port=port
+        )
+
+        with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+            # Execute a query
+            cursor.execute("SELECT * FROM teams where season = %s", (CURRENT_SEASON,))
+
+            teams = cursor.fetchall()
+
+        conn.close()
+
+        for team in teams:
+            new_team = Team(
+                team["id"],
+                team["name"],
+                team["division"],
+                team["season"],
+                team["wins"],
+                team["losses"],
+                team["ties"],
+            )
+            ret_teams.append(new_team)
     else:
 
         cwd = os.getcwd()
@@ -80,7 +115,31 @@ def load_events(teams: List[Team]) -> List[Event]:
 
     env = os.getenv("ENV")
     if env == "prod":
-        pass
+
+        conn = psycopg2.connect(
+            dbname=dbname, user=user, password=password, host=host, port=port
+        )
+
+        with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+            # Execute a query
+            cursor.execute("SELECT * FROM events where season = %s", (CURRENT_SEASON,))
+
+            events = cursor.fetchall()
+
+        conn.close()
+
+        for event in events:
+            new_event = Event(
+                event["id"],
+                event["season"],
+                event["home_team_id"],
+                event["away_team_id"],
+                event["commence_time"],
+                event["completed"],
+                event["home_score"],
+                event["away_score"],
+            )
+            ret_events.append(new_event)
     else:
 
         cwd = os.getcwd()
@@ -112,11 +171,35 @@ def load_events(teams: List[Team]) -> List[Event]:
 
 def load_event_odds(teams: List[Team]) -> List[EventOdds]:
 
-    event_odds = []
+    ret_event_odds = []
 
     env = os.getenv("ENV")
     if env == "prod":
-        pass
+
+        conn = psycopg2.connect(
+            dbname=dbname, user=user, password=password, host=host, port=port
+        )
+
+        with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+            # Execute a query
+            cursor.execute(
+                """SELECT DISTINCT ON (event_id) * FROM public.event_odds ORDER BY event_id, "timestamp" DESC;"""
+            )
+
+            event_odds = cursor.fetchall()
+
+        conn.close()
+
+        for event_odd in event_odds:
+            new_event = EventOdds(
+                event_odd["id"],
+                event_odd["event_id"],
+                event_odd["timestamp"],
+                event_odd["home_odds"],
+                event_odd["away_odds"],
+            )
+
+            ret_event_odds.append(new_event)
     else:
 
         cwd = os.getcwd()
@@ -158,13 +241,6 @@ def load_event_odds(teams: List[Team]) -> List[EventOdds]:
                         elif outcome["name"] == away_team_name:
                             away_avg.add(outcome["price"])
 
-            home_team: Team = next(
-                (team for team in teams if team.name == home_team_name)
-            )
-            away_team: Team = next(
-                (team for team in teams if team.name == away_team_name)
-            )
-
             rand_id = uuid4().hex
             now = datetime.now(tz=timezone.utc)
 
@@ -172,9 +248,9 @@ def load_event_odds(teams: List[Team]) -> List[EventOdds]:
                 rand_id, event_id, now, home_avg.get_average(), away_avg.get_average()
             )
 
-            event_odds.append(new_event_odds)
+            ret_event_odds.append(new_event_odds)
 
-    return event_odds
+    return ret_event_odds
 
 
 def load_data():
@@ -205,7 +281,7 @@ afc_west_teams = set([team.id for team in teams if team.division == "AFC West"])
 
 team_map = {team.id: team for team in teams}
 event_map = {event.id: event for event in events}
-event_odds_map = {eo.id: eo for eo in event_odds}
+event_odds_map = {eo.event_id: eo for eo in event_odds}
 
 
 def compute_win_prob(home_odds: float, away_odds: float):
@@ -307,12 +383,12 @@ def simulate_season():
     for team_id in team_map.keys():
         results_map[team_id] = {"wins": [], "losses": []}
 
-    for _, event_odd in event_odds_map.items():
-
-        event = event_map[event_odd.event_id]
+    for _, event in event_map.items():
 
         home_team_id = event.home_team_id
         away_team_id = event.away_team_id
+
+        event_odd = event_odds_map[event.id]
 
         home_odds = event_odd.home_odds
         away_odds = event_odd.away_odds
@@ -371,63 +447,82 @@ def simulate_season():
     )
 
 
-results = {
-    team_id: {"win_conference": 0, "win_division": 0, "make_playoffs": 0}
-    for team_id in team_map.keys()
-}
+def simulate_n(n_simulations=1000):
+
+    results = {
+        team_id: {"win_conference": float(0), "win_division": 0, "make_playoffs": 0}
+        for team_id in team_map.keys()
+    }
+
+    for i in tqdm(range(n_simulations)):
+
+        nfc_rankings, afc_rankings = simulate_season()
+
+        for i in range(7):
+
+            results[nfc_rankings[i]]["make_playoffs"] += 1
+            results[afc_rankings[i]]["make_playoffs"] += 1
+
+            if i < 4:
+                results[nfc_rankings[i]]["win_division"] += 1
+                results[afc_rankings[i]]["win_division"] += 1
+
+            if i == 0:
+                results[nfc_rankings[i]]["win_conference"] += 1
+                results[afc_rankings[i]]["win_conference"] += 1
+
+    for team_id in team_map.keys():
+        results[team_id]["make_playoffs"] /= n_simulations
+        results[team_id]["win_division"] /= n_simulations
+        results[team_id]["win_conference"] /= n_simulations
+
+    return results
 
 
-n_simulations = 100000
+def run_and_update():
 
-t0 = time()
+    results = simulate_n(N_SIMULATIONS)
 
-for _ in range(n_simulations):
+    conn = psycopg2.connect(
+        dbname=dbname, user=user, password=password, host=host, port=port
+    )
 
-    nfc_rankings, afc_rankings = simulate_season()
+    with conn.cursor() as cursor:
 
-    for i in range(7):
-
-        results[nfc_rankings[i]]["make_playoffs"] += 1
-        results[afc_rankings[i]]["make_playoffs"] += 1
-
-        if i < 4:
-            results[nfc_rankings[i]]["win_division"] += 1
-            results[afc_rankings[i]]["win_division"] += 1
-
-        if i == 0:
-            results[nfc_rankings[i]]["win_conference"] += 1
-            results[afc_rankings[i]]["win_conference"] += 1
-
-t1 = time()
-
-print(f"Ran {n_simulations} simulations in {t1-t0} seconds")
-
-
-with open("results.csv", "w") as outfile:
-
-    lines = [
-        ",".join(["team", "make_playoffs_prob", "win_division_prob", "win_conf_prob"])
-        + "\n"
-    ]
-
-    for team, result in results.items():
-
-        make_playoffs_prob = result["make_playoffs"] / n_simulations
-        win_division_prob = result["win_division"] / n_simulations
-        win_conf_prob = result["win_conference"] / n_simulations
-
-        lines.append(
-            ",".join(
-                [
-                    team,
-                    str(make_playoffs_prob),
-                    str(win_division_prob),
-                    str(win_conf_prob),
-                ]
+        for team_id, team_results in results.items():
+            print(
+                f"{team_id}: {team_results['make_playoffs']} - {team_results['win_division']} - {team_results['win_conference']}"
             )
-            + "\n"
-        )
 
-        print(f"{team}: {win_conf_prob} - {win_division_prob} - {make_playoffs_prob}")
+            cursor.execute(
+                """
+                INSERT INTO nfl_season_simulation 
+                    (team_id, simulation_group, make_playoffs_probability, win_division_probability, win_conference_probability, n_simulations)
+                VALUES 
+                    (%s, %s, %s, %s, %s, %s)
+                ON CONFLICT (simulation_group, team_id)
+                DO UPDATE SET
+                    make_playoffs_probability = EXCLUDED.make_playoffs_probability,
+                    win_division_probability = EXCLUDED.win_division_probability,
+                    win_conference_probability = EXCLUDED.win_conference_probability,
+                    n_simulations = EXCLUDED.n_simulations,
+                    created_at = CURRENT_TIMESTAMP;
+                """,
+                (
+                    team_id,
+                    SIMULATION_GROUP,
+                    team_results["make_playoffs"],
+                    team_results["win_division"],
+                    team_results["win_conference"],
+                    N_SIMULATIONS,
+                ),
+            )
 
-    outfile.writelines(lines)
+        input("Press Enter to save results...")
+
+        conn.commit()
+
+    conn.close()
+
+
+run_and_update()
