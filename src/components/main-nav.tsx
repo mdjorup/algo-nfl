@@ -22,7 +22,7 @@ const MainNav = () => {
             </NavigationMenuLink>
           </Link>
         </NavigationMenuItem>
-        <NavigationMenuItem>
+        {/* <NavigationMenuItem>
           <Link href="/scores" legacyBehavior passHref>
             <NavigationMenuLink
               className={navigationMenuTriggerStyle()}
@@ -30,8 +30,8 @@ const MainNav = () => {
               Scores
             </NavigationMenuLink>
           </Link>
-        </NavigationMenuItem>
-        <NavigationMenuItem>
+        </NavigationMenuItem> */}
+        {/* <NavigationMenuItem>
           <Link href="/standings" legacyBehavior passHref>
             <NavigationMenuLink
               className={navigationMenuTriggerStyle()}
@@ -39,7 +39,7 @@ const MainNav = () => {
               Standings
             </NavigationMenuLink>
           </Link>
-        </NavigationMenuItem>
+        </NavigationMenuItem> */}
         <NavigationMenuItem>
           <Link href="/playoff-picture" legacyBehavior passHref>
             <NavigationMenuLink
@@ -49,7 +49,7 @@ const MainNav = () => {
             </NavigationMenuLink>
           </Link>
         </NavigationMenuItem>
-        <NavigationMenuItem>
+        {/* <NavigationMenuItem>
           <Link href="/rankings" legacyBehavior passHref>
             <NavigationMenuLink
               className={navigationMenuTriggerStyle()}
@@ -57,8 +57,8 @@ const MainNav = () => {
               Power Rankings
             </NavigationMenuLink>
           </Link>
-        </NavigationMenuItem>
-        <NavigationMenuItem>
+        </NavigationMenuItem> */}
+        {/* <NavigationMenuItem>
           <Link href="/algorithm" legacyBehavior passHref>
             <NavigationMenuLink
               className={navigationMenuTriggerStyle()}
@@ -66,7 +66,7 @@ const MainNav = () => {
               Algorithm
             </NavigationMenuLink>
           </Link>
-        </NavigationMenuItem>
+        </NavigationMenuItem> */}
       </NavigationMenuList>
     </NavigationMenu>
   );

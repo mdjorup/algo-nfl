@@ -38,4 +38,15 @@ export interface EventOdds {
     away_odds: number;
 }
 
+export interface SeasonSimulation {
+    id: number;
+    created_at: Date;
+    simulation_group: number;
+    team_id: string;
+    make_playoffs_probability: number;
+    win_division_probability: number;
+    win_conference_probability: number;
+    n_simulations: number;
+}
+
 export interface FullEvent {}

@@ -1,4 +1,5 @@
 import { COLORS } from "@/lib/consts";
+import { formatAsPercent } from "@/lib/format-utils";
 import { getWinProbability } from "@/lib/utils";
 import { format, isBefore } from "date-fns";
 import Image from "next/image";
@@ -24,13 +25,13 @@ export const TeamRow = ({ team_name, win_probability, isHomeTeam }: { team_name:
 
   const team_color = COLORS[team_name]
 
-  const display_probability = (win_probability * 100).toFixed(1)
+  const display_probability = formatAsPercent(win_probability)
   return (
     <div className="flex justify-between items-center w-full" >
       <Image src={`/${team_name}.png`} alt={team_name} width={35} height={35} />
       <div className="flex w-full items-center justify-between pl-4">
         <div className="text-lg font-bold">{display_name}</div>
-        <Badge variant={win_probability > .5 ? "default" : win_probability < 0.5 ? "destructive" : "outline"}>{display_probability}%</Badge>
+        <Badge variant={win_probability > .5 ? "default" : win_probability < 0.5 ? "destructive" : "outline"}>{display_probability}</Badge>
       </div>
     </div>
   )
