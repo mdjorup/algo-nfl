@@ -49,4 +49,13 @@ export interface SeasonSimulation {
     n_simulations: number;
 }
 
+export interface Team {
+    id: string;
+    name: string;
+    division: string;
+    wins: number;
+    losses: number;
+    ties: number;
+}
+
 export interface FullEvent {}
