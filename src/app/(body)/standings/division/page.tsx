@@ -1,98 +1,65 @@
+import Standings from "@/components/Standings";
+import { SEASON } from "@/lib/consts";
+import { query } from "@/lib/db";
+import { Team } from "@/lib/types";
 
 
-// interface DivisionProps {
-//   divisionName: string;
-//   teams: {
-//     teamname: string;
-//     wins: number;
-//     losses: number;
-//     ties: number;
-//     divisionWinProbabiltiy?: number;
-//   }[]
-// }
+interface DivisionProbs {
+  team_id: string;
+  win_division_probability: number;
+  name: string;
+}
+
+const DivisionStandingsPage = async () => {
 
 
-// const testData: DivisionProps = {
-//   divisionName: "NFC East",
-//   teams: [
-//     {
-//       "teamname": "Philadelphia Eagles",
-//       "wins": 12,
-//       "losses": 5,
-//       "ties": 0,
-//       "divisionWinProbabiltiy": 0.6
-//     },
-//     {
-//       "teamname": "Dallas Cowboys",
-//       "wins": 10,
-//       "losses": 7,
-//       "ties": 0,
-//       "divisionWinProbabiltiy": 0.25
-//     },
-//     {
-//       "teamname": "Washington Commanders",
-//       "wins": 8,
-//       "losses": 8,
-//       "ties": 1,
-//       "divisionWinProbabiltiy": 0.10
-//     },
-//     {
-//       "teamname": "New York Giants",
-//       "wins": 8,
-//       "losses": 9,
-//       "ties": 0,
-//       "divisionWinProbabiltiy": 0.05
-//     }
-//   ]
-// }
-// export const Division = (props: DivisionProps) => {
+  // get latest division win probabilities 
 
-//   return (
-//     <Card>
-//       <CardHeader>
-//         <CardTitle>
-//           {props.divisionName}
-//         </CardTitle>
+  const divisionProbsPromise = query<DivisionProbs>(`
+    SELECT 
+        nss.team_id,
+        nss.win_division_probability,
+        t.name
+    FROM 
+        public.nfl_season_simulation nss
+    JOIN 
+        public.teams t ON nss.team_id = t.id
+    WHERE 
+        nss.simulation_group = (
+            SELECT MAX(simulation_group) 
+            FROM public.nfl_season_simulation
+        )
+    ORDER BY 
+        t.name;`, [])
 
-//       </CardHeader>
-//       <CardContent>
-//         {props.teams.map((team, i) => {
-
-//           const display_name = team.teamname.split(" ").pop()
-//           const display_probability = (team.divisionWinProbabiltiy ?? 0 * 100).toFixed(1)
-//           return (
-//             <div key={i} className="flex items-center w-full" >
-//               <div className="font-bold flex justify-center items-center pr-4">{i + 1}</div>
-//               <Image src={`/${team.teamname}.png`} alt={team.teamname} width={35} height={35} />
-//               <div className="flex w-full items-center justify-between pl-4">
-//                 <div className="flex gap-3 ">
-//                   <div className="text-lg font-bold">{display_name}</div>
-//                   <div className="text-muted-foreground">{team.wins}-{team.losses}{team.ties > 0 ? "-" + team.ties : ""}</div>
-//                 </div>
-//                 {team.divisionWinProbabiltiy && <Badge variant='secondary'>{display_probability}%</Badge>}
-//               </div>
-//             </div>
-//           )
+  const teamsPromise = query<Team>(`
+    select * from teams
+where season = '${SEASON}'
+    `)
 
 
-//         })}
-//       </CardContent>
+  const [divisionProbs, teams] = await Promise.all([divisionProbsPromise, teamsPromise])
+  const divisionWinProbMap = new Map<string, number>()
 
-//     </Card>
-//   )
-// }
-
-
-const DivisionStandings = () => {
+  divisionProbs.forEach((dp) => {
+    divisionWinProbMap.set(dp.team_id, dp.win_division_probability)
+  })
 
 
   return (
-    <div>
-      <h1 className="text-3xl font-bold mb-8">
-        {`Division Standings`}
-      </h1>
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-8">
+      <Standings title="NFC East" teams={teams.filter((team) => team.division === 'NFC East')} probabilityMap={divisionWinProbMap} />
+      <Standings title="NFC North" teams={teams.filter((team) => team.division === 'NFC North')} probabilityMap={divisionWinProbMap} />
+      <Standings title="NFC South" teams={teams.filter((team) => team.division === 'NFC South')} probabilityMap={divisionWinProbMap} />
+      <Standings title="NFC West" teams={teams.filter((team) => team.division === 'NFC West')} probabilityMap={divisionWinProbMap} />
+      <Standings title="AFC East" teams={teams.filter((team) => team.division === 'AFC East')} probabilityMap={divisionWinProbMap} />
+      <Standings title="AFC North" teams={teams.filter((team) => team.division === 'AFC North')} probabilityMap={divisionWinProbMap} />
+      <Standings title="AFC South" teams={teams.filter((team) => team.division === 'AFC South')} probabilityMap={divisionWinProbMap} />
+      <Standings title="AFC West" teams={teams.filter((team) => team.division === 'AFC West')} probabilityMap={divisionWinProbMap} />
+
+
     </div>
   )
 }
 
-export default DivisionStandings
+export default DivisionStandingsPage

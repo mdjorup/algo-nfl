@@ -68,4 +68,6 @@ export const COLORS: Record<string, string> = {
     "Washington Commanders": "#773141",
 };
 
+export const SEASON = "2024";
+
 export const seasonStart = new Date("2024-09-04T00:00:00Z");
