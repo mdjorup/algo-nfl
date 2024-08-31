@@ -15,7 +15,6 @@ interface SeasonSimulationTableEntry extends SeasonSimulation {
 
 const getSeasonSimulations = async (): Promise<SeasonSimulationTableEntry[]> => {
 
-  console.log('Getting season simulations');
   const results = await query<SeasonSimulationTableEntry>(`
     SELECT 
         nss.*,
@@ -77,7 +76,7 @@ const PlayoffPicturePage = async () => {
   return (
     <div className='container mx-auto py-10'>
       <h1 className='text-3xl font-bold mb-8'>
-        NFL Playoff Picture
+        2024 NFL Post Season Probabilities
       </h1>
       <p className='mb-8'>
         The following table shows the playoff probabilities for each NFL team based on 100,000 simulations of the remaining games in the season. All games are simulated using the current odds of every game. The probabilities are based on the number of times each team made the playoffs, won their division, and won the conference in the simulations.
