@@ -83,7 +83,7 @@
 // }
 
 
-const StandingsByDivision = () => {
+const DivisionStandings = () => {
 
 
   return (
@@ -95,4 +95,4 @@ const StandingsByDivision = () => {
   )
 }
 
-export default StandingsByDivision
+export default DivisionStandings
