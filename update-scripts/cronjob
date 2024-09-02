@@ -1,1 +1,1 @@
-* * * * * /usr/local/bin/python /app/script.py >> /var/log/cron.log 2>&1
+0 */4 * * * /usr/local/bin/python /app/update_odds.py >> /var/log/cron.log 2>&1

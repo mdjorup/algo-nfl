@@ -2,3 +2,4 @@ services:
   db:
     build: ./update-scripts
     container_name: update-script
+
