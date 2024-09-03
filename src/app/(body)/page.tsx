@@ -1,13 +1,16 @@
 import Game from "@/components/game";
-import { getCurrentWeekEventsWithOdds, getCurrentWeekRange } from "@/lib/utils";
+import { getCurrentWeekEventsWithOdds_cached } from "@/lib/cacheFunctions";
+import { getCurrentWeekRange } from "@/lib/utils";
 import { isBefore } from "date-fns";
 
 const revalidate = 60 * 5; // 5 minutes
 
 
+
+
 export default async function Home() {
 
-  const eventsWithOdds = await getCurrentWeekEventsWithOdds();
+  const eventsWithOdds = await getCurrentWeekEventsWithOdds_cached();
 
   const { week } = getCurrentWeekRange()
 
