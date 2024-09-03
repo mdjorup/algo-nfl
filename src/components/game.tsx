@@ -17,6 +17,7 @@ interface GameComponentProps {
   home_score?: number;
   away_score?: number;
   complete: boolean;
+  odds_update_time?: Date;
 }
 
 export const TeamRow = ({ team_name, win_probability, isHomeTeam }: { team_name: string, win_probability: number, isHomeTeam: boolean }) => {
@@ -37,7 +38,7 @@ export const TeamRow = ({ team_name, win_probability, isHomeTeam }: { team_name:
   )
 }
 
-const Game = ({ event_id, home_team, away_team, commence_time, home_team_odds, away_team_odds, home_score, away_score, complete }: GameComponentProps) => {
+const Game = ({ event_id, home_team, away_team, commence_time, home_team_odds, away_team_odds, home_score, away_score, complete, odds_update_time }: GameComponentProps) => {
   const gameDescription = complete ? "Final" : isBefore(new Date(), commence_time) ? format(commence_time, "EEE @ p") : "Live"
 
   const awayColor = COLORS[away_team]
@@ -56,6 +57,10 @@ const Game = ({ event_id, home_team, away_team, commence_time, home_team_odds, a
         <TeamRow team_name={away_team} win_probability={awayWinProbability} isHomeTeam={false} />
         <TeamRow team_name={home_team} win_probability={homeWinProbability} isHomeTeam={true} />
       </div>
+      {odds_update_time && <div className="flex w-full justify-end items-center text-muted-foreground italic text-xs mt-1">
+        <p>Updated{` `}
+          <DateRender date={odds_update_time} dateFormat="LL/cc p" /></p>
+      </div>}
     </Card>
   )
 }

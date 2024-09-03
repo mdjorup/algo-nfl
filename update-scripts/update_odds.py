@@ -171,6 +171,7 @@ def update_odds():
                     event_odds.away_odds,
                 ),
             )
+        time.sleep(0.03)
 
     conn.commit()
 
