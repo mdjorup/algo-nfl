@@ -9,7 +9,7 @@ interface DateRenderProps {
 }
 
 const DateRender = ({ date, dateFormat }: DateRenderProps) => {
-  return <time dateTime={date.toISOString()}>{format(date, dateFormat ?? "")}</time>
+  return <>{format(date, dateFormat ?? "")}</>
 }
 
 export default DateRender
