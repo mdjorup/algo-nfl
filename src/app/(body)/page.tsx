@@ -1,6 +1,6 @@
 import Game from "@/components/game";
 import { getCurrentWeekEventsWithOdds_cached } from "@/lib/cacheFunctions";
-import { getCurrentWeekRange } from "@/lib/utils";
+import { getCurrentWeekRange } from "@/lib/dbFns";
 import { isBefore } from "date-fns";
 
 const revalidate = 60 * 5; // 5 minutes
@@ -8,7 +8,7 @@ const revalidate = 60 * 5; // 5 minutes
 
 
 
-export default async function Home() {
+const Home = async () => {
 
   const eventsWithOdds = await getCurrentWeekEventsWithOdds_cached();
 
@@ -28,3 +28,6 @@ export default async function Home() {
     </div>
   );
 }
+
+
+export default Home;

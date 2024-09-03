@@ -1,6 +1,6 @@
 import { COLORS } from "@/lib/consts";
+import { getWinProbability } from "@/lib/dbFns";
 import { formatAsPercent } from "@/lib/format-utils";
-import { getWinProbability } from "@/lib/utils";
 import { format, isBefore } from "date-fns";
 import Image from "next/image";
 import DateRender from "./DateRender";
@@ -31,8 +31,8 @@ export const TeamRow = ({ team_name, win_probability, isHomeTeam }: { team_name:
     <div className="flex justify-between items-center w-full" >
       <Image src={`/${team_name}.png`} alt={team_name} width={35} height={35} />
       <div className="flex w-full items-center justify-between pl-4">
-        <div className="text-lg font-bold">{display_name}</div>
-        <Badge variant={win_probability > .5 ? "default" : win_probability < 0.5 ? "destructive" : "outline"}>{display_probability}</Badge>
+        <div className="text-sm sm:text-lg font-bold">{display_name}</div>
+        <Badge variant={win_probability > .5 ? "default" : win_probability < 0.5 ? "destructive" : "outline"} className="text-xs">{display_probability}</Badge>
       </div>
     </div>
   )
@@ -49,11 +49,11 @@ const Game = ({ event_id, home_team, away_team, commence_time, home_team_odds, a
 
 
   return (
-    <Card className="relative overflow-hidden p-5">
+    <Card className="relative overflow-hidden p-4 sm:p-5">
       <div>
         <DateRender date={commence_time} dateFormat="EEE @ p" /></div>
 
-      <div className="w-full mt-2 flex flex-col gap-1">
+      <div className="w-full mt-2 flex flex-col gap-1 sm:gap-2">
         <TeamRow team_name={away_team} win_probability={awayWinProbability} isHomeTeam={false} />
         <TeamRow team_name={home_team} win_probability={homeWinProbability} isHomeTeam={true} />
       </div>

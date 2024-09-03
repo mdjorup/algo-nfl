@@ -55,11 +55,11 @@ export const metadata: Metadata = {
   category: "Sports Analytics",
 };
 
-export default function RootLayout({
+const RootLayout = ({
   children,
 }: Readonly<{
   children: React.ReactNode;
-}>) {
+}>) => {
   return (
     <html lang="en">
       <body className={cn(
@@ -69,3 +69,5 @@ export default function RootLayout({
     </html>
   );
 }
+
+export default RootLayout;

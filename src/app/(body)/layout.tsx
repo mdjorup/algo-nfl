@@ -1,10 +1,10 @@
 import { Header } from "@/components/header";
 
-export default function BodyLayout({
+const BodyLayout = ({
   children,
 }: Readonly<{
   children: React.ReactNode;
-}>) {
+}>) => {
   return (
     <>
       <Header />
@@ -16,3 +16,5 @@ export default function BodyLayout({
     </>
   );
 }
+
+export default BodyLayout

@@ -120,7 +120,10 @@ const PlayoffPicturePage = async () => {
             <TableRow key={entry.id} className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
               <TableCell className="flex gap-3 justify-start items-center font-bold">
                 <Image src={`/${entry.name}.png`} alt={entry.name} width={35} height={35} />
-                {entry.name}
+                <span className='hidden sm:block'>
+                  {entry.name.split(" ").pop()}
+
+                </span>
               </TableCell>
               <TableCell>
                 <ProbabilityBadge probability={entry.make_playoffs_probability} />

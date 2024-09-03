@@ -49,7 +49,11 @@ const Standings = ({ title, teams, probabilityMap, n_highlighted }: StandingsPro
             }).map((team, i) => (
               <TableRow key={team.id} className={`${i < (n_highlighted ?? 0) ? "bg-blue-300" : ""}`}>
                 <TableCell className="flex gap-4 font-bold items-center">
-                  <Image src={`/${team.name}.png`} alt={`${team.name} Logo`} height={35} width={35} />{team.name.split(" ").pop()}</TableCell>
+                  <Image src={`/${team.name}.png`} alt={`${team.name} Logo`} height={35} width={35} />
+                  <span className="hidden md:block">
+                    {team.name.split(" ").pop()}
+                  </span>
+                </TableCell>
                 <TableCell>{team.wins}</TableCell>
                 <TableCell>{team.losses}</TableCell>
                 <TableCell>{team.ties}</TableCell>
