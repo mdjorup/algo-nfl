@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { buttonVariants } from "./ui/button";
 import {
   NavigationMenu,
   NavigationMenuItem,
@@ -46,6 +47,15 @@ const MainNav = () => {
               className={navigationMenuTriggerStyle()}
             >
               Playoff Picture
+            </NavigationMenuLink>
+          </Link>
+        </NavigationMenuItem>
+        <NavigationMenuItem>
+          <Link href="/feedback" legacyBehavior passHref>
+            <NavigationMenuLink
+              className={buttonVariants({ "variant": "default" })}
+            >
+              Give Feedback
             </NavigationMenuLink>
           </Link>
         </NavigationMenuItem>

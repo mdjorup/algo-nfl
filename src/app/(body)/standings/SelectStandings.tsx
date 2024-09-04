@@ -1,5 +1,6 @@
 'use client';
 
+import { buttonVariants } from '@/components/ui/button';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -8,11 +9,10 @@ const SelectStandings = () => {
 
   return (
     <nav className='flex rounded gap-4 '>
-      <Link className={`flex items-center justify-center p-2 rounded ${pathname.endsWith("/division") ? 'bg-primary text-primary-foreground' : ''}`} href="/standings/division">
+      <Link className={buttonVariants({ "variant": pathname.endsWith("/conference") ? "outline" : "secondary" })} href="/standings/division">
         Division
       </Link>
-
-      <Link className={`flex items-center justify-center p-2 rounded ${pathname.endsWith("/conference") ? 'bg-primary text-primary-foreground' : ''}`} href="/standings/conference">
+      <Link className={buttonVariants({ "variant": pathname.endsWith("/division") ? "outline" : "secondary" })} href="/standings/conference">
         Conference
       </Link>
     </nav>

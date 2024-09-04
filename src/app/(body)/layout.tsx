@@ -8,7 +8,7 @@ const BodyLayout = ({
   return (
     <>
       <Header />
-      <main className="px-4 py-6 md:px-16 lg:px-32 xl:px-48">
+      <main className="px-2 py-6 md:px-16 lg:px-32 xl:px-48">
         {children}
       </main>
 
