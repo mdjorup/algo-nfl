@@ -43,12 +43,14 @@ export const metadata: Metadata = {
     description: "Access real-time NFL playoff predictions and game probabilities. Our cutting-edge algorithms deliver precise forecasts for every postseason matchup. Get the edge with expert NFL odds and in-depth analysis.",
     url: "https://nflprobabilities.com",
     type: "website",
+    images: new URL("https://nflprobabilities.com/opengraph-image.png"),
   },
   twitter: {
     card: "summary_large_image",
     creator: "@michaeldjorup",
     title: "NFL Playoff Predictions & Game Probabilities",
     description: "Get the latest NFL playoff predictions and game probabilities.",
+    images: new URL("https://nflprobabilities.com/twitter-image.png"),
   },
   category: "Sports Analytics",
 };
