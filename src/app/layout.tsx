@@ -9,6 +9,7 @@ const fontSans = FontSans({
 })
 
 export const metadata: Metadata = {
+  metadataBase: process.env.NODE_ENV == "production" ? new URL("http://nflprobabilities.com") : new URL("http://localhost:3000"),
   title: "NFL Playoff Predictions & Probabilities | NFL Game Odds",
   description: "Get NFL playoff predictions and game probabilities. Our advanced algorithms provide accurate forecasts for every postseason matchup. Stay ahead with expert NFL odds and analysis.",
   keywords: "NFL playoffs, football predictions, game probabilities, postseason odds, live NFL forecasts, playoff matchups, NFL analytics",
@@ -42,15 +43,12 @@ export const metadata: Metadata = {
     description: "Access real-time NFL playoff predictions and game probabilities. Our cutting-edge algorithms deliver precise forecasts for every postseason matchup. Get the edge with expert NFL odds and in-depth analysis.",
     url: "https://nflprobabilities.com",
     type: "website",
-    images: [
-    ],
   },
   twitter: {
     card: "summary_large_image",
     creator: "@michaeldjorup",
     title: "NFL Playoff Predictions & Game Probabilities",
     description: "Get the latest NFL playoff predictions and game probabilities.",
-    images: [],
   },
   category: "Sports Analytics",
 };
