@@ -1,23 +1,18 @@
 
 import { Badge } from '@/components/ui/badge';
-import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { DataTable } from '@/components/ui/data-table';
 import { query } from '@/lib/db';
 import { formatAsPercent } from '@/lib/format-utils';
-import { SeasonSimulation } from '@/lib/types';
-import Image from 'next/image';
+import { columns, SeasonSimulationRow } from './columns';
 
 
+const getSeasonSimulations = async (): Promise<SeasonSimulationRow[]> => {
 
-interface SeasonSimulationTableEntry extends SeasonSimulation {
-  name: string;
-}
-
-
-const getSeasonSimulations = async (): Promise<SeasonSimulationTableEntry[]> => {
-
-  const results = await query<SeasonSimulationTableEntry>(`
+  const results = await query<SeasonSimulationRow>(`
     SELECT 
-        nss.*,
+        nss.make_playoffs_probability,
+        nss.win_division_probability,
+        nss.win_conference_probability,
         t.name
     FROM 
         public.nfl_season_simulation nss
@@ -105,42 +100,7 @@ const PlayoffPicturePage = async () => {
       <p className='mb-8'>
         The following table shows the playoff probabilities for each NFL team based on 100,000 simulations of the remaining games in the season. All games are simulated using the current odds of every game. The probabilities are based on the number of times each team made the playoffs, won their division, and won the conference in the simulations.
       </p>
-      <Table>
-        <TableCaption>NFL Playoff Probabilities - 100,000 Simulations</TableCaption>
-        <TableHeader>
-          <TableRow className=''>
-            <TableHead className="">Team</TableHead>
-            <TableHead className="">Make Playoffs</TableHead>
-            <TableHead className="">Win Division</TableHead>
-            <TableHead className="">Win Conference</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {sorted.map((entry, index) => (
-            <TableRow key={entry.id} className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
-              <TableCell className="flex gap-3 justify-start items-center font-bold">
-                <Image src={`/${entry.name}.png`} alt={entry.name} width={35} height={35} />
-                <span className='hidden sm:block'>
-                  {entry.name.split(" ").pop()}
-
-                </span>
-              </TableCell>
-              <TableCell>
-                <ProbabilityBadge probability={entry.make_playoffs_probability} />
-              </TableCell>
-              <TableCell>
-                <ProbabilityBadge probability={entry.win_division_probability} />
-              </TableCell>
-              <TableCell>
-                <ProbabilityBadge probability={entry.win_conference_probability} />
-              </TableCell>
-            </TableRow>
-          ))}
-
-
-        </TableBody>
-
-      </Table>
+      <DataTable columns={columns} data={data} />
     </div>
   )
 }
