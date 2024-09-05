@@ -1,6 +1,7 @@
 import { addDays } from "date-fns";
 import { seasonStart } from "./consts";
 import { query } from "./db";
+import { Event, EventOdds } from "./types";
 
 export const getWinProbability = (homeOdds: number, awayOdds: number) => {
     const totalOdds = homeOdds + awayOdds;
@@ -75,4 +76,36 @@ LEFT JOIN
     );
 
     return events;
+};
+
+export const getEvent = async (eventId: string) => {
+    const event = await query<
+        Event & {
+            home_name: string;
+            away_name: string;
+        }
+    >(
+        `select 
+            e.*,
+            ht.name as home_name,
+            at.name as away_name 
+        from events e
+        LEFT JOIN 
+            teams ht ON e.home_team_id = ht.id
+        LEFT JOIN 
+            teams at ON e.away_team_id = at.id 
+        where e.id = $1`,
+        [eventId]
+    );
+
+    return event[0];
+};
+
+export const getEventOdds = async (eventId: string) => {
+    const eventOdds = await query<EventOdds>(
+        `select * from event_odds eo WHERE event_id = $1`,
+        [eventId]
+    );
+
+    return eventOdds;
 };

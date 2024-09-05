@@ -36,6 +36,7 @@ export interface EventOdds {
     timestamp: Date;
     home_odds: number;
     away_odds: number;
+    sportsbook_key?: string;
 }
 
 export interface SeasonSimulation {

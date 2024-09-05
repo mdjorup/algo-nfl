@@ -10,6 +10,7 @@ const revalidate = 60 * 5; // 5 minutes
 
 const Home = async () => {
 
+
   const eventsWithOdds = await getCurrentWeekEventsWithOdds_cached();
 
   const { week } = getCurrentWeekRange()
