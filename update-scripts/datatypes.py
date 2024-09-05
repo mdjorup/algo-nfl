@@ -22,3 +22,4 @@ class EventOdds:
     timestamp: datetime
     home_odds: float
     away_odds: float
+    sportbook_key: str | None
