@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
 import { Noto_Sans_Mono as FontSans } from "next/font/google";
 import "./globals.css";
+import { CSPostHogProvider } from "./providers";
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -62,10 +63,12 @@ const RootLayout = ({
 }>) => {
   return (
     <html lang="en">
-      <body className={cn(
-        "min-h-screen bg-background font-sans antialiased",
-        fontSans.variable
-      )}>{children}</body>
+      <CSPostHogProvider>
+        <body className={cn(
+          "min-h-screen bg-background font-sans antialiased",
+          fontSans.variable
+        )}>{children}</body>
+      </CSPostHogProvider>
     </html>
   );
 }
