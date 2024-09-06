@@ -1,9 +1,9 @@
+import DateRender from '@/components/DateRender';
 import SportsbookOddsTable from '@/components/SportsbookOddsTable';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { getEvent_cached, getEventOdds_cached } from '@/lib/cacheFunctions';
 import { EventOdds } from '@/lib/types';
-import { format } from 'date-fns';
 import { ArrowLeftRight, Calendar, Clock } from 'lucide-react';
 import Image from 'next/image';
 import ProbabilityChart from './ProbabilityChart';
@@ -99,11 +99,11 @@ const GamePage = async ({ params }: { params: { eventId: string } }) => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="flex items-center">
               <Calendar className="mr-2" />
-              <span>{format(new Date(event.commence_time), 'MMMM d, yyyy')}</span>
+              <span>{<DateRender date={new Date(event.commence_time)} dateFormat='MMMM d, yyyy' />}</span>
             </div>
             <div className="flex items-center">
               <Clock className="mr-2" />
-              <span>{format(new Date(event.commence_time), 'h:mm a')}</span>
+              <span>{<DateRender date={new Date(event.commence_time)} dateFormat='h:mm a' />}</span>
             </div>
             <div className="flex items-center">
               <ArrowLeftRight className="mr-2" />
