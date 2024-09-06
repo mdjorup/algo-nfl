@@ -17,13 +17,14 @@ import {
 } from "@/components/ui/chart"
 import { COLORS } from "@/lib/consts"
 import { formatAsPercent } from "@/lib/format-utils"
+import { format } from "date-fns"
 
 export const description = "A multiple line chart"
 
 
 
 const formatDate = (date: Date) => {
-  return new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  return format(date, 'MMM d, h a');
 };
 
 const buildChartConfig = (homeTeam: string, awayTeam: string): ChartConfig => {
@@ -80,7 +81,7 @@ const ProbabilityChart = ({ homeTeam, awayTeam, data }: ProbabilityChartProps) =
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{homeTeam} vs {awayTeam} - Win Probability</CardTitle>
+        <CardTitle>Win Probability</CardTitle>
         <CardDescription>
           Tracking win probabilities based on betting odds
         </CardDescription>
@@ -100,6 +101,9 @@ const ProbabilityChart = ({ homeTeam, awayTeam, data }: ProbabilityChartProps) =
               dataKey="timestamp"
               tickFormatter={formatDate}
               label={{ value: 'Date', position: 'insideBottomRight', offset: -10 }}
+              angle={-30}
+              textAnchor="end"
+              height={70}
             />
             <YAxis
               label={{ value: 'Win Probability (%)', angle: -90, position: 'insideLeft' }}

@@ -1,8 +1,8 @@
 import { COLORS } from "@/lib/consts";
 import { getWinProbability } from "@/lib/dbFns";
 import { formatAsPercent } from "@/lib/format-utils";
-import { format, isBefore } from "date-fns";
 import Image from "next/image";
+import Link from "next/link";
 import DateRender from "./DateRender";
 import { Badge } from "./ui/badge";
 import { Card } from "./ui/card";
@@ -39,10 +39,6 @@ export const TeamRow = ({ team_name, win_probability, isHomeTeam }: { team_name:
 }
 
 const Game = ({ event_id, home_team, away_team, commence_time, home_team_odds, away_team_odds, home_score, away_score, complete, odds_update_time }: GameComponentProps) => {
-  const gameDescription = complete ? "Final" : isBefore(new Date(), commence_time) ? format(commence_time, "EEE @ p") : "Live"
-
-  const awayColor = COLORS[away_team]
-  const homeColor = COLORS[home_team]
 
   const { homeWinProbability, awayWinProbability } = getWinProbability(home_team_odds, away_team_odds)
 
@@ -50,17 +46,20 @@ const Game = ({ event_id, home_team, away_team, commence_time, home_team_odds, a
 
   return (
     <Card className="relative overflow-hidden p-4 sm:p-5">
-      <div>
-        <DateRender date={commence_time} dateFormat="EEE @ p" /></div>
+      <Link href={`/games/${event_id}`}>
 
-      <div className="w-full mt-2 flex flex-col gap-1 sm:gap-2">
-        <TeamRow team_name={away_team} win_probability={awayWinProbability} isHomeTeam={false} />
-        <TeamRow team_name={home_team} win_probability={homeWinProbability} isHomeTeam={true} />
-      </div>
-      {odds_update_time && <div className="flex w-full justify-end items-center text-muted-foreground italic text-xs mt-1">
-        <p>Updated{` `}
-          <DateRender date={odds_update_time} dateFormat="LL/cc p" /></p>
-      </div>}
+        <div>
+          <DateRender date={commence_time} dateFormat="EEE @ p" /></div>
+
+        <div className="w-full mt-2 flex flex-col gap-1 sm:gap-2">
+          <TeamRow team_name={away_team} win_probability={awayWinProbability} isHomeTeam={false} />
+          <TeamRow team_name={home_team} win_probability={homeWinProbability} isHomeTeam={true} />
+        </div>
+        {odds_update_time && <div className="flex w-full justify-end items-center text-muted-foreground italic text-xs mt-1">
+          <p>Updated{` `}
+            <DateRender date={odds_update_time} dateFormat="LL/cc p" /></p>
+        </div>}
+      </Link>
     </Card>
   )
 }
