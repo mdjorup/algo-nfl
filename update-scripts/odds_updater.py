@@ -22,18 +22,14 @@ async def run_odds_update(event_id: str) -> Optional[datetime]:
     now = datetime.now(timezone.utc)
 
     if now < event.commence_time - timedelta(weeks=1):
-        print("Game is more than a week away")
         return now + timedelta(days=1)
     elif now < event.commence_time - timedelta(days=1):
-        print("Game is more than a day away")
         return now + timedelta(hours=6)
     elif now < event.commence_time - timedelta(minutes=30):
-        print("Game is less than a day away")
         return min(
             now + timedelta(hours=1), event.commence_time - timedelta(minutes=30)
         )
     elif now < event.commence_time + timedelta(hours=5):
-        print("Game is in progress or about to start")
         return now + timedelta(minutes=5)
 
     return None

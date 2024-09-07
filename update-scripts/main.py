@@ -18,12 +18,12 @@ async def process_queue(queue, update_func):
             next_update = await update_func(item.key)
 
             print(
-                f"[{update_func.__name__}] Updating for event {item.key} : next update {next_update}"
+                f"[{update_func.__name__}] Updated event {item.key if item.key != '' else 'GAMES'} : next update {next_update}"
             )
 
             if next_update:
                 queue.add(item.key, next_update)
-        await asyncio.sleep(5)
+        await asyncio.sleep(1)
 
 
 async def main():
@@ -34,10 +34,12 @@ async def main():
 
     load_update_queue(all_events)
 
-    odds_task = asyncio.create_task(process_queue(ODDS_UPDATE_QUEUE, run_odds_update))
+    odds_task = (
+        None  # asyncio.create_task(process_queue(ODDS_UPDATE_QUEUE, run_odds_update))
+    )
     game_task = asyncio.create_task(process_queue(GAME_UPDATE_QUEUE, run_game_update))
 
-    await asyncio.gather(odds_task, game_task)
+    await asyncio.gather(game_task)
 
 
 if __name__ == "__main__":

@@ -33,15 +33,18 @@ async def run_game_update(*args) -> Optional[datetime]:
         next_update = now + timedelta(minutes=5)
         game_updates = get_game_status(days_from=1)
 
-    print(f"Game updates: {game_updates}")
-
     events_to_update = []
+
+    print(len(upcoming_events))
+    print(len(game_updates))
 
     for ue in upcoming_events:
         for gu in game_updates:
             if ue.id == gu.id:
                 events_to_update.append(gu)
                 continue
+
+    print(f"Updating {len(events_to_update)} games")
 
     update_events(events_to_update)
 
