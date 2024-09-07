@@ -1,22 +1,15 @@
 FROM python:3.11-slim
 
-# Install cron
-RUN apt-get update && apt-get install -y cron
-
 # Copy your script into the container
-COPY *.py /app/
 
-COPY cronjob /etc/cron.d/cronjob
+WORKDIR /app
 
-COPY .env.prod /app/.env
+COPY *.py .
 
-COPY requirements.txt /app/requirements.txt
-RUN pip install -r /app/requirements.txt
+COPY .env.prod .env
 
-RUN chmod 0644 /etc/cron.d/cronjob
+COPY requirements.txt requirements.txt
 
-RUN crontab /etc/cron.d/cronjob
+RUN pip install -r requirements.txt
 
-RUN touch /var/log/cron.log
-
-CMD cron && tail -f /var/log/cron.log
+CMD ["python", "main.py"]

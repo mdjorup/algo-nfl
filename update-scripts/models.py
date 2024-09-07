@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
+from typing import Optional
 
 
 @dataclass
@@ -11,8 +12,8 @@ class Event:
     away_team_id: str
     commence_time: datetime
     completed: bool
-    home_score: int | None
-    away_score: int | None
+    home_score: Optional[int]
+    away_score: Optional[int]
 
 
 @dataclass
