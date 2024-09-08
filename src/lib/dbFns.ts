@@ -17,6 +17,13 @@ export const getWinProbability = (homeOdds: number, awayOdds: number) => {
     return { homeWinProbability, awayWinProbability };
 };
 
+export const getStartAndEndOfWeek = (week: number) => {
+    const start = addDays(seasonStart, (week - 1) * 7);
+    const end = addDays(start, 7);
+
+    return { start, end };
+};
+
 export const getCurrentWeekRange = () => {
     const now = new Date();
 
@@ -108,4 +115,71 @@ export const getEventOdds = async (eventId: string) => {
     );
 
     return eventOdds;
+};
+
+export const getAllEventsWithNames = async () => {
+    const events = await query<
+        Event & {
+            home_name: string;
+            away_name: string;
+        }
+    >(
+        `select 
+            e.*,
+            ht.name as home_name,
+            at.name as away_name 
+        from events e
+        LEFT JOIN 
+            teams ht ON e.home_team_id = ht.id
+        LEFT JOIN 
+            teams at ON e.away_team_id = at.id 
+        `,
+        []
+    );
+
+    return events;
+};
+
+export const getAllLatestEventOdds = async () => {
+    const results = await query<{
+        event_id: string;
+        home_odds_ema: number;
+        away_odds_ema: number;
+        latest_timestamp: Date;
+    }>(
+        `WITH latest_odds AS (
+    SELECT 
+      event_id,
+      home_odds,
+      away_odds,
+      timestamp,
+      ROW_NUMBER() OVER (PARTITION BY event_id ORDER BY timestamp DESC) as rn
+    FROM 
+      event_odds
+  ),
+  ema_calc AS (
+    SELECT 
+      event_id,
+      home_odds,
+      away_odds,
+      timestamp,
+      EXP(SUM(LN(0.2)) OVER (PARTITION BY event_id ORDER BY timestamp DESC ROWS BETWEEN CURRENT ROW AND 9 FOLLOWING)) as weight
+    FROM 
+      latest_odds
+    WHERE 
+      rn <= 10
+  )
+  SELECT 
+    event_id,
+    MAX(timestamp) as latest_timestamp,
+    SUM(home_odds * weight) / SUM(weight) as home_odds_ema,
+    SUM(away_odds * weight) / SUM(weight) as away_odds_ema
+  FROM 
+    ema_calc
+  GROUP BY 
+    event_id`,
+        []
+    );
+
+    return results;
 };

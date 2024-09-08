@@ -2,14 +2,22 @@
 
 
 import { format } from 'date-fns';
+import { useEffect, useState } from 'react';
 
 interface DateRenderProps {
-  date: Date;
+  date: string | Date;
   dateFormat?: string;
 }
 
 const DateRender = ({ date, dateFormat }: DateRenderProps) => {
-  return <>{format(date, dateFormat ?? "")}</>
+
+  const [formattedDate, setFormattedDate] = useState('');
+
+  useEffect(() => {
+    setFormattedDate(format(new Date(date), dateFormat ?? ""));
+  }, [date, dateFormat]);
+
+  return <>{formattedDate}</>;
 }
 
 export default DateRender
