@@ -1,10 +1,8 @@
-import DateRender from '@/components/DateRender';
 import SportsbookOddsTable from '@/components/SportsbookOddsTable';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { getEvent_cached, getEventOdds_cached } from '@/lib/cacheFunctions';
+import { COLORS } from '@/lib/consts';
 import { EventOdds } from '@/lib/types';
-import { ArrowLeftRight, Calendar, Clock } from 'lucide-react';
+import { format } from 'date-fns';
 import Image from 'next/image';
 import ProbabilityChart from './ProbabilityChart';
 
@@ -78,70 +76,73 @@ const GamePage = async ({ params }: { params: { eventId: string } }) => {
   // console.log(eventOdds)
   const averagedOdds = averageOddsDataPoints(eventOddsData);
 
-  const latestSportsbookOdds = Array.from(new Map(eventOddsData.filter((odds) => odds.sportsbook_key != null).sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime()).map(entry => [entry.sportsbook_key, entry])).values()).sort((a, b) => a.home_odds - b.home_odds);
+  const latestSportsbookOdds = eventOddsData.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime()).slice(0, 10);
 
 
+  const isGameActive = new Date(event.commence_time) <= new Date() && !event.completed;
+
+  const currentOdds = latestSportsbookOdds[latestSportsbookOdds.length - 1]
+
+  const formatGameTime = (date: Date | string) => {
+    return format(new Date(date), 'MMM d, h:mm a');
+  };
+
+  const calculateWinProbability = (odds: EventOdds) => {
+    const totalOdds = odds.home_odds + odds.away_odds;
+    return {
+      home: ((1 / odds.home_odds) / totalOdds * 100).toFixed(1),
+      away: ((1 / odds.away_odds) / totalOdds * 100).toFixed(1)
+    };
+  };
+
+  const winProbabilities = currentOdds ? calculateWinProbability(currentOdds) : null;
+
+  const homeColor = COLORS[event.home_name]; // #123abc
+  const awayColor = COLORS[event.away_name]; // #abc123
   // 
 
   return (
-    <div className="container mx-auto px-4 py-8 mb-20">
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle className="text-2xl font-bold flex items-center">
-            <Image src={`/${event.away_name}.png`} alt={event.away_name} width={60} height={60} />
-            <span className="ml-4">{event.away_name}</span>
-            <span className="mx-4"> @ </span>
-            <span className="mr-4">{event.home_name}</span>
-            <Image src={`/${event.home_name}.png`} alt={event.home_name} width={60} height={60} />
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="flex items-center">
-              <Calendar className="mr-2" />
-              <span>{<DateRender date={new Date(event.commence_time)} dateFormat='MMMM d, yyyy' />}</span>
-            </div>
-            <div className="flex items-center">
-              <Clock className="mr-2" />
-              <span>{<DateRender date={new Date(event.commence_time)} dateFormat='h:mm a' />}</span>
-            </div>
-            <div className="flex items-center">
-              <ArrowLeftRight className="mr-2" />
-              <span>{event.completed ? 'Completed' : 'Upcoming'}</span>
-            </div>
+    <div className="container flex flex-col gap-2">
+      <div className="flex justify-between items-center">
+        <div className="flex items-center space-x-4 py-8 relative overflow-hidden rounded-lg" style={{
+          background: `linear-gradient(135deg, ${awayColor}aa 0%, transparent 70%)`,
+          padding: '20px',
+        }}>
+          <Image src={`/${event.away_name}.png`} alt={event.away_name} width={64} height={64} />
+          <div>
+            <h2 className="text-2xl font-bold">{event.away_name}</h2>
+            {isGameActive && winProbabilities && (
+              <p className="text-sm text-gray-600">{winProbabilities.away}% win probability</p>
+            )}
           </div>
-          {event.completed && (
-            <div className="mt-4">
-              <h3 className="text-lg font-semibold mb-2">Final Score</h3>
-              <div className="flex justify-center items-center space-x-4">
-                <span className="text-xl">{event.home_name}: {event.home_score}</span>
-                <span className="text-xl">-</span>
-                <span className="text-xl">{event.away_name}: {event.away_score}</span>
-              </div>
-            </div>
+        </div>
+        <div className="text-center">
+          <p className="text-lg font-semibold mb-2">
+            {event.completed ? 'Final Score' : formatGameTime(event.commence_time)}
+          </p>
+          {event.completed ? (
+            <p className="text-3xl font-bold">{event.away_score} - {event.home_score}</p>
+          ) : isGameActive ? (
+            <p className="text-3xl font-bold">{event.away_score ?? 0} - {event.home_score ?? 0}</p>
+          ) : (
+            <p className="text-xl">VS</p>
           )}
-        </CardContent>
-      </Card>
-
-      <Tabs defaultValue="odds" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="odds">Odds</TabsTrigger>
-          <TabsTrigger value="chart">Probability Chart</TabsTrigger>
-        </TabsList>
-        <TabsContent value="odds">
-          <Card>
-            <CardHeader>
-              <CardTitle>Latest Sportsbook Odds</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <SportsbookOddsTable awayTeam={event.away_name} homeTeam={event.home_name} data={latestSportsbookOdds} />
-            </CardContent>
-          </Card>
-        </TabsContent>
-        <TabsContent value="chart">
-          <ProbabilityChart homeTeam={event.home_name} awayTeam={event.away_name} data={averagedOdds} />
-        </TabsContent>
-      </Tabs>
+        </div>
+        <div className="flex items-center space-x-4 py-8 relative overflow-hidden rounded-lg" style={{
+          background: `linear-gradient(225deg, ${homeColor}aa 0%, transparent 70%)`,
+          padding: '20px',
+        }}>
+          <div className="text-right">
+            <h2 className="text-2xl font-bold">{event.home_name}</h2>
+            {isGameActive && winProbabilities && (
+              <p className="text-sm text-gray-600">{winProbabilities.home}% win probability</p>
+            )}
+          </div>
+          <Image src={`/${event.home_name}.png`} alt={event.home_name} width={64} height={64} />
+        </div>
+      </div>
+      {!event.completed && <SportsbookOddsTable awayTeam={event.away_name} homeTeam={event.home_name} data={latestSportsbookOdds} />}
+      <ProbabilityChart homeTeam={event.home_name} awayTeam={event.away_name} data={averagedOdds} />
     </div>
   )
 }

@@ -79,7 +79,7 @@ const ProbabilityChart = ({ homeTeam, awayTeam, data }: ProbabilityChartProps) =
   const probChange = latestHomeProb - earliestHomeProb;
 
   return (
-    <Card>
+    <Card className="border-none">
       <CardHeader>
         <CardTitle>Win Probability</CardTitle>
         <CardDescription>

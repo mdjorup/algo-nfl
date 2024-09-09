@@ -102,22 +102,22 @@ const GamePage = async ({
           }
         </div>
       </div>}
-      {completedEvents.length > 0 && <div className='my-4'>
-        <p className='text-xl'>Complete</p>
+      {upcomingEvents.length > 0 && <div className='my-4'>
+        <p className='text-xl'>Upcoming</p>
         <div className="mt-4 grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
           {
-            completedEvents.sort((e1, e2) => e1.commence_time.getTime() - e2.commence_time.getTime()).map((event, i) => {
+            upcomingEvents.sort((e1, e2) => e1.commence_time.getTime() - e2.commence_time.getTime()).map((event, i) => {
               const gameOdds = getOddsForEvent(event.id)
               return <Game key={i} id={event.id} commence_time={event.commence_time} away_name={event.away_name} home_name={event.home_name} away_score={event.away_score} home_score={event.home_score} odds_timestamp={gameOdds?.latest_timestamp} home_team_odds={gameOdds?.home_odds_ema ?? 2} away_team_odds={gameOdds?.away_odds_ema ?? 2} completed={event.completed} />
             })
           }
         </div>
       </div>}
-      {upcomingEvents.length > 0 && <div className='my-4'>
-        <p className='text-xl'>Upcoming</p>
+      {completedEvents.length > 0 && <div className='my-4'>
+        <p className='text-xl'>Complete</p>
         <div className="mt-4 grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
           {
-            upcomingEvents.sort((e1, e2) => e1.commence_time.getTime() - e2.commence_time.getTime()).map((event, i) => {
+            completedEvents.sort((e1, e2) => e1.commence_time.getTime() - e2.commence_time.getTime()).map((event, i) => {
               const gameOdds = getOddsForEvent(event.id)
               return <Game key={i} id={event.id} commence_time={event.commence_time} away_name={event.away_name} home_name={event.home_name} away_score={event.away_score} home_score={event.home_score} odds_timestamp={gameOdds?.latest_timestamp} home_team_odds={gameOdds?.home_odds_ema ?? 2} away_team_odds={gameOdds?.away_odds_ema ?? 2} completed={event.completed} />
             })
