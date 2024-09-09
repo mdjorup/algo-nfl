@@ -16,5 +16,5 @@ export const getEvent_cached = unstable_cache(getEvent, [], {
 });
 
 export const getEventOdds_cached = unstable_cache(getEventOdds, [], {
-    revalidate: 60 * 60,
+    revalidate: 60 * 5,
 });
