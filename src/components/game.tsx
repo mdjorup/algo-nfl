@@ -27,7 +27,7 @@ const TeamRow = ({ team_name, win_probability, isHomeTeam, score, isWinner, show
   const display_probability = formatAsPercent(win_probability);
 
   return (
-    <div className={cn("flex justify-between items-center w-full p-2 rounded", isWinner ? 'bg-green-100' : '')} style={{ borderLeft: `4px solid ${team_color}` }}>
+    <div className={cn("flex justify-between items-center w-full p-2 rounded", isWinner ? 'bg-emerald-50' : '')} style={{ borderLeft: `4px solid ${team_color}` }}>
       <Image src={`/${team_name}.png`} alt={team_name} width={35} height={35} />
       <div className="flex w-full items-center justify-between pl-4">
         <div className="text-sm sm:text-lg font-bold">{display_name}</div>

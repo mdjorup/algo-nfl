@@ -28,7 +28,8 @@ const GamePage = async ({
 
   const currentWeekEvents = events.filter((event) => {
     return event.commence_time >= start && event.commence_time < end
-  })
+  }).sort((e1, e2) => e1.commence_time.getTime() - e2.commence_time.getTime())
+
 
   const relevantOdds = odds.filter((odd) => {
     return currentWeekEvents.find((event) => {
@@ -45,6 +46,9 @@ const GamePage = async ({
   }
 
 
+  const completedEvents = currentWeekEvents.filter((event) => event.completed)
+  const inProgressEvents = currentWeekEvents.filter((event) => !event.completed && new Date() > event.commence_time)
+  const upcomingEvents = currentWeekEvents.filter((event) => !event.completed && new Date() < event.commence_time)
 
 
 
@@ -56,32 +60,70 @@ const GamePage = async ({
       <Pagination>
         <PaginationContent>
           <PaginationItem>
-            <PaginationPrevious isActive={queriedWeek !== 1} href={paginationPreviousLink} />
+            <PaginationPrevious
+              isActive={queriedWeek !== 1}
+              href={paginationPreviousLink}
+            />
           </PaginationItem>
-          {Array.from(Array(18).keys()).map((i) => {
-            const week = i + 1
-            const link = `/games?week=${week}`
-            return (
-              <PaginationItem key={i}>
-                <PaginationLink href={link} isActive={week === queriedWeek}>
-                  {week}
-                </PaginationLink>
-              </PaginationItem>
-            )
-          })}
+          <div className="hidden md:flex">
+            {Array.from(Array(18).keys()).map((i) => {
+              const week = i + 1;
+              const link = `/games?week=${week}`;
+              return (
+                <PaginationItem key={i}>
+                  <PaginationLink href={link} isActive={week === queriedWeek}>
+                    {week}
+                  </PaginationLink>
+                </PaginationItem>
+              );
+            })}
+          </div>
+          <PaginationItem className="md:hidden">
+            <PaginationLink href={`/games?week=${queriedWeek}`} isActive>
+              {queriedWeek}
+            </PaginationLink>
+          </PaginationItem>
           <PaginationItem>
-            <PaginationNext href={paginationNextLink} isActive={queriedWeek !== 18} />
+            <PaginationNext
+              href={paginationNextLink}
+              isActive={queriedWeek !== 18}
+            />
           </PaginationItem>
         </PaginationContent>
       </Pagination>
-      <div className="mt-4 grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-        {
-          currentWeekEvents.sort((e1, e2) => e1.commence_time.getTime() - e2.commence_time.getTime()).map((event, i) => {
-            const gameOdds = getOddsForEvent(event.id)
-            return <Game key={i} id={event.id} commence_time={event.commence_time} away_name={event.away_name} home_name={event.home_name} away_score={event.away_score} home_score={event.home_score} odds_timestamp={gameOdds?.latest_timestamp} home_team_odds={gameOdds?.home_odds_ema ?? 2} away_team_odds={gameOdds?.away_odds_ema ?? 2} completed={event.completed} />
-          })
-        }
-      </div>
+      {inProgressEvents.length > 0 && <div className='mt-4'>
+        <p className='text-xl'>In Progress</p>
+        <div className="mt-4 grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+          {
+            inProgressEvents.sort((e1, e2) => e1.commence_time.getTime() - e2.commence_time.getTime()).map((event, i) => {
+              const gameOdds = getOddsForEvent(event.id)
+              return <Game key={i} id={event.id} commence_time={event.commence_time} away_name={event.away_name} home_name={event.home_name} away_score={event.away_score} home_score={event.home_score} odds_timestamp={gameOdds?.latest_timestamp} home_team_odds={gameOdds?.home_odds_ema ?? 2} away_team_odds={gameOdds?.away_odds_ema ?? 2} completed={event.completed} />
+            })
+          }
+        </div>
+      </div>}
+      {completedEvents.length > 0 && <div className='my-4'>
+        <p className='text-xl'>Complete</p>
+        <div className="mt-4 grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+          {
+            completedEvents.sort((e1, e2) => e1.commence_time.getTime() - e2.commence_time.getTime()).map((event, i) => {
+              const gameOdds = getOddsForEvent(event.id)
+              return <Game key={i} id={event.id} commence_time={event.commence_time} away_name={event.away_name} home_name={event.home_name} away_score={event.away_score} home_score={event.home_score} odds_timestamp={gameOdds?.latest_timestamp} home_team_odds={gameOdds?.home_odds_ema ?? 2} away_team_odds={gameOdds?.away_odds_ema ?? 2} completed={event.completed} />
+            })
+          }
+        </div>
+      </div>}
+      {upcomingEvents.length > 0 && <div className='my-4'>
+        <p className='text-xl'>Upcoming</p>
+        <div className="mt-4 grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+          {
+            upcomingEvents.sort((e1, e2) => e1.commence_time.getTime() - e2.commence_time.getTime()).map((event, i) => {
+              const gameOdds = getOddsForEvent(event.id)
+              return <Game key={i} id={event.id} commence_time={event.commence_time} away_name={event.away_name} home_name={event.home_name} away_score={event.away_score} home_score={event.home_score} odds_timestamp={gameOdds?.latest_timestamp} home_team_odds={gameOdds?.home_odds_ema ?? 2} away_team_odds={gameOdds?.away_odds_ema ?? 2} completed={event.completed} />
+            })
+          }
+        </div>
+      </div>}
     </div>
   )
 }
