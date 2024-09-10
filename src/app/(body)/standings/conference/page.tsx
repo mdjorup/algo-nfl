@@ -13,7 +13,7 @@ const ConferenceStandingsPage = async () => {
 
   // get latest division win probabilities 
 
-  const { nfcRankings, afcRankings } = await getConferenceRankings();
+  const { nfcRankings, afcRankings } = await getConferenceRankings("AFC");
 
 
 
