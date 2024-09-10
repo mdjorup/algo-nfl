@@ -23,8 +23,8 @@ export const description = "A multiple line chart"
 
 
 
-const formatDate = (date: Date) => {
-  return format(date, 'MMM d, h a');
+const formatDate = (date: number) => {
+  return format(new Date(date), 'MM/dd, hh:mm a');
 };
 
 const buildChartConfig = (homeTeam: string, awayTeam: string): ChartConfig => {
@@ -68,7 +68,7 @@ const ProbabilityChart = ({ homeTeam, awayTeam, data }: ProbabilityChartProps) =
     const { homeWinProbability, awayWinProbability } = getWinProbability(point.home_odds, point.away_odds);
     return {
       ...point,
-      timestamp: new Date(point.timestamp),
+      timestamp: new Date(point.timestamp).getTime(),
       homeWinProbability: Math.round(homeWinProbability * 1000) / 10,
       awayWinProbability: Math.round(awayWinProbability * 1000) / 10,
     };
@@ -99,6 +99,8 @@ const ProbabilityChart = ({ homeTeam, awayTeam, data }: ProbabilityChartProps) =
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis
               dataKey="timestamp"
+              type="number"
+              domain={['dataMin', 'dataMax']}
               tickFormatter={formatDate}
               label={{ value: 'Date', position: 'insideBottomRight', offset: -10 }}
               angle={-30}
@@ -106,6 +108,7 @@ const ProbabilityChart = ({ homeTeam, awayTeam, data }: ProbabilityChartProps) =
               height={70}
             />
             <YAxis
+              domain={[0, 100]}
               label={{ value: 'Win Probability (%)', angle: -90, position: 'insideLeft' }}
             />
             <Tooltip
@@ -118,7 +121,7 @@ const ProbabilityChart = ({ homeTeam, awayTeam, data }: ProbabilityChartProps) =
               dataKey="homeWinProbability"
               name={homeTeam}
               stroke={COLORS[homeTeam]}
-              strokeWidth={4}
+              strokeWidth={2}
               dot={false}
 
 
@@ -128,7 +131,7 @@ const ProbabilityChart = ({ homeTeam, awayTeam, data }: ProbabilityChartProps) =
               dataKey="awayWinProbability"
               name={awayTeam}
               stroke={COLORS[awayTeam]}
-              strokeWidth={4}
+              strokeWidth={2}
               dot={false}
 
             />

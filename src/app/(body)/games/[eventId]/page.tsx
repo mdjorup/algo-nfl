@@ -3,60 +3,62 @@ import { COLORS } from '@/lib/consts';
 import { getEvent, getEventOdds, getWinProbability } from '@/lib/dbFns';
 import { formatAsPercent } from '@/lib/format-utils';
 import { EventOdds } from '@/lib/types';
-import { format } from 'date-fns';
+import { addSeconds, format, subDays } from 'date-fns';
 import Image from 'next/image';
 import ProbabilityChart from './ProbabilityChart';
 
 
-const averageOddsDataPoints = (eventOdds: EventOdds[], timeWindowMs: number = 60000): EventOdds[] => {
+const averageOddsDataPoints = (
+  eventOdds: EventOdds[],
+  period: number,
+  startTime: Date,
+  endTime?: Date
+): EventOdds[] => {
+  const filteredOdds = eventOdds
+    .filter(odds => !endTime || (odds.timestamp >= startTime && odds.timestamp <= endTime))
+    .sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
 
-  const sortedDataPoints = eventOdds.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
-
-  if (sortedDataPoints.length === 0) {
-    return [];
-  }
-  const result: EventOdds[] = [];
+  const retOdds: EventOdds[] = [];
   let currentWindow: EventOdds[] = [];
-  let windowStartTime = sortedDataPoints[0].timestamp.getTime();
+  let currentStart = startTime;
+  let currentEnd = addSeconds(currentStart, period);
 
-  for (const dataPoint of sortedDataPoints) {
-    const currentTime = dataPoint.timestamp.getTime();
-
-    if (currentTime - windowStartTime > timeWindowMs) {
+  for (const odds of filteredOdds) {
+    if (odds.timestamp <= currentEnd) {
+      currentWindow.push(odds);
+    } else {
       if (currentWindow.length > 0) {
-        const averagedPoint = averageWindow(currentWindow);
-        result.push(averagedPoint);
+        retOdds.push(averageWindow(currentWindow));
       }
-      currentWindow = [];
-      windowStartTime = currentTime;
+      while (odds.timestamp > currentEnd) {
+        currentStart = currentEnd;
+        currentEnd = addSeconds(currentEnd, period);
+      }
+      currentWindow = [odds];
     }
-
-    currentWindow.push(dataPoint);
   }
 
-  // Handle the last window
   if (currentWindow.length > 0) {
-    const averagedPoint = averageWindow(currentWindow);
-    result.push(averagedPoint);
+    retOdds.push(averageWindow(currentWindow));
   }
 
-  return result;
-
-
-
-}
+  return retOdds;
+};
 
 const averageWindow = (window: EventOdds[]): EventOdds => {
   const count = window.length;
-  const sum = window.reduce((acc, point) => ({
-    home_odds: acc.home_odds + point.home_odds,
-    away_odds: acc.away_odds + point.away_odds,
-  }), { home_odds: 0, away_odds: 0 });
+  const sum = window.reduce(
+    (acc, point) => ({
+      home_odds: acc.home_odds + point.home_odds,
+      away_odds: acc.away_odds + point.away_odds,
+    }),
+    { home_odds: 0, away_odds: 0 }
+  );
 
   return {
-    id: window[window.length - 1].id,
+    id: window[count - 1].id,
     event_id: window[0].event_id,
-    timestamp: new Date((window[0].timestamp.getTime() + window[window.length - 1].timestamp.getTime()) / 2),
+    timestamp: window[count - 1].timestamp,
     home_odds: sum.home_odds / count,
     away_odds: sum.away_odds / count,
   };
@@ -72,22 +74,30 @@ const GamePage = async ({ params }: { params: { eventId: string } }) => {
       ...odds,
       timestamp: new Date(odds.timestamp),
     }
-  });
+  }).sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
 
 
   const commenceTime = new Date(event.commence_time);
 
-  const latestSportsbookOdds = eventOddsData.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime()).slice(0, 10);
+  const latestSportsbookOdds = eventOddsData.slice(Math.max(eventOddsData.length - 10, 0)).sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
 
 
   const isGameActive = new Date(event.commence_time) <= new Date() && !event.completed;
-  const chartOdds = eventOddsData.filter((odds) => {
-    if (isGameActive || event.completed) {
-      return odds.timestamp.getTime() >= commenceTime.getTime();
+
+  const oddsStartTime = (isGameActive || event.completed) ? commenceTime : subDays(commenceTime, 7);
+
+
+  const chartOdds = averageOddsDataPoints(eventOddsData, 300, oddsStartTime, undefined);
+
+  if (event.completed) {
+    if (event.home_score > event.away_score) {
+      chartOdds[chartOdds.length - 1].home_odds = 1;
+      chartOdds[chartOdds.length - 1].away_odds = 10000;
     } else {
-      return true;
+      chartOdds[chartOdds.length - 1].home_odds = 10000;
+      chartOdds[chartOdds.length - 1].away_odds = 1;
     }
-  }).sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+  }
 
   const currentOdds = latestSportsbookOdds[latestSportsbookOdds.length - 1]
 
