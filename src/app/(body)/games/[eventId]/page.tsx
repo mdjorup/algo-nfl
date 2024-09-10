@@ -117,48 +117,80 @@ const GamePage = async ({ params }: { params: { eventId: string } }) => {
 
   return (
     <div className="container flex flex-col gap-2">
-      <div className="flex justify-between items-center">
-        <div className="flex items-center space-x-4 py-8 relative overflow-hidden rounded-lg" style={{
-          background: `linear-gradient(135deg, ${awayColor}aa 0%, transparent 70%)`,
-          padding: '20px',
-        }}>
-          <Image src={`/${event.away_name}.png`} alt={event.away_name} width={64} height={64} />
-          <div>
-            <h2 className="text-2xl font-bold">{event.away_name}</h2>
-            {isGameActive && winProbabilities && (
-              <p className="text-sm text-gray-600">{formatAsPercent(winProbabilities.awayWinProbability)} win probability</p>
-            )}
-          </div>
-        </div>
-        <div className="text-center">
-          <p className="text-lg font-semibold mb-2">
-            {centerTimeString}
-          </p>
-          {event.completed ? (
-            <p className="text-3xl font-bold">{event.away_score} - {event.home_score}</p>
-          ) : isGameActive ? (
-            <p className="text-3xl font-bold">{event.away_score ?? 0} - {event.home_score ?? 0}</p>
-          ) : (
-            <p className="text-xl">VS</p>
-          )}
-        </div>
-        <div className="flex items-center space-x-4 py-8 relative overflow-hidden rounded-lg" style={{
-          background: `linear-gradient(225deg, ${homeColor}aa 0%, transparent 70%)`,
-          padding: '20px',
-        }}>
-          <div className="text-right">
-            <h2 className="text-2xl font-bold">{event.home_name}</h2>
-            {isGameActive && winProbabilities && (
-              <p className="text-sm text-gray-600">{formatAsPercent(winProbabilities.homeWinProbability)} win probability</p>
-            )}
-          </div>
-          <Image src={`/${event.home_name}.png`} alt={event.home_name} width={64} height={64} />
-        </div>
+      <div className="flex flex-col md:flex-row justify-between items-center">
+        <TeamInfo
+          name={event.away_name}
+          score={event.away_score}
+          winProbability={winProbabilities?.awayWinProbability}
+          color={awayColor}
+          isAway={true}
+          isActive={isGameActive}
+        />
+        <GameStatus
+          centerTimeString={centerTimeString}
+          awayScore={event.away_score}
+          homeScore={event.home_score}
+          isCompleted={event.completed}
+          isActive={isGameActive}
+        />
+        <TeamInfo
+          name={event.home_name}
+          score={event.home_score}
+          winProbability={winProbabilities?.homeWinProbability}
+          color={homeColor}
+          isAway={false}
+          isActive={isGameActive}
+        />
       </div>
       <ProbabilityChart homeTeam={event.home_name} awayTeam={event.away_name} data={chartOdds} />
       {!event.completed && <SportsbookOddsTable awayTeam={event.away_name} homeTeam={event.home_name} data={latestSportsbookOdds} />}
     </div>
   )
 }
+
+interface TeamInfoProps {
+  name: string;
+  score: number | null;
+  winProbability: number | undefined;
+  color: string;
+  isAway: boolean;
+  isActive: boolean;
+};
+
+interface GameStatusProps {
+  centerTimeString: string;
+  awayScore: number | null;
+  homeScore: number | null;
+  isCompleted: boolean;
+  isActive: boolean;
+};
+
+const TeamInfo: React.FC<TeamInfoProps> = ({ name, score, winProbability, color, isAway, isActive }) => (
+  <div className={`flex items-center space-x-4 py-4 px-6 my-2 w-full md:w-auto relative overflow-hidden rounded-lg ${isAway ? 'md:flex-row' : 'md:flex-row-reverse'}`}
+    style={{
+      background: `linear-gradient(${isAway ? '135deg' : '225deg'}, ${color}aa 0%, transparent 70%)`,
+    }}>
+    <Image src={`/${name}.png`} alt={name} width={64} height={64} />
+    <div className={`text-${isAway ? 'left' : 'right'}`}>
+      <h2 className="text-xl md:text-2xl font-bold">{name}</h2>
+      {isActive && winProbability && (
+        <p className="text-sm text-gray-600">{formatAsPercent(winProbability)} win probability</p>
+      )}
+    </div>
+  </div>
+);
+
+const GameStatus: React.FC<GameStatusProps> = ({ centerTimeString, awayScore, homeScore, isCompleted, isActive }) => (
+  <div className="text-center my-4 md:my-0">
+    <p className="text-lg font-semibold mb-2">
+      {centerTimeString}
+    </p>
+    {isCompleted || isActive ? (
+      <p className="text-3xl font-bold">{awayScore ?? 0} - {homeScore ?? 0}</p>
+    ) : (
+      <p className="text-xl">VS</p>
+    )}
+  </div>
+);
 
 export default GamePage
