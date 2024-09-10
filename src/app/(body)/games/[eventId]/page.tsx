@@ -77,9 +77,6 @@ const GamePage = async ({ params }: { params: { eventId: string } }) => {
 
   const commenceTime = new Date(event.commence_time);
 
-
-  const averagedOdds = averageOddsDataPoints(eventOddsData);
-
   const latestSportsbookOdds = eventOddsData.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime()).slice(0, 10);
 
 
