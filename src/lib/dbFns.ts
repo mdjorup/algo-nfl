@@ -1,7 +1,7 @@
 import { addDays } from "date-fns";
-import { seasonStart } from "./consts";
+import { SEASON, seasonStart } from "./consts";
 import { query } from "./db";
-import { Event, EventOdds } from "./types";
+import { Event, EventOdds, Team } from "./types";
 
 export const getWinProbability = (homeOdds: number, awayOdds: number) => {
     const totalOdds = homeOdds + awayOdds;
@@ -117,6 +117,15 @@ export const getEventOdds = async (eventId: string) => {
     return eventOdds;
 };
 
+export const getAllEvents = async () => {
+    const events = await query<Event>(
+        `select * from events where season = $1`,
+        [SEASON]
+    );
+
+    return events;
+};
+
 export const getAllEventsWithNames = async () => {
     const events = await query<
         Event & {
@@ -182,4 +191,12 @@ export const getAllLatestEventOdds = async () => {
     );
 
     return results;
+};
+
+export const getAllTeams = async () => {
+    const teams = await query<Team>(`select * from teams where season = $1`, [
+        SEASON,
+    ]);
+
+    return teams;
 };

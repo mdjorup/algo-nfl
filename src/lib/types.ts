@@ -54,6 +54,7 @@ export interface Team {
     id: string;
     name: string;
     division: string;
+    season: string;
     wins: number;
     losses: number;
     ties: number;

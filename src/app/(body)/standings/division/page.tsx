@@ -1,7 +1,5 @@
 import Standings from "@/components/Standings";
-import { SEASON } from "@/lib/consts";
-import { query } from "@/lib/db";
-import { Team } from "@/lib/types";
+import { getRankings } from "@/lib/rankings";
 
 
 interface DivisionProbs {
@@ -13,49 +11,19 @@ interface DivisionProbs {
 const DivisionStandingsPage = async () => {
 
 
-  // get latest division win probabilities 
-
-  const divisionProbsPromise = query<DivisionProbs>(`
-    SELECT 
-        nss.team_id,
-        nss.win_division_probability,
-        t.name
-    FROM 
-        public.nfl_season_simulation nss
-    JOIN 
-        public.teams t ON nss.team_id = t.id
-    WHERE 
-        nss.simulation_group = (
-            SELECT MAX(simulation_group) 
-            FROM public.nfl_season_simulation
-        )
-    ORDER BY 
-        t.name;`, [])
-
-  const teamsPromise = query<Team>(`
-    select * from teams
-where season = '${SEASON}'
-    `)
-
-
-  const [divisionProbs, teams] = await Promise.all([divisionProbsPromise, teamsPromise])
-  const divisionWinProbMap = new Map<string, number>()
-
-  divisionProbs.forEach((dp) => {
-    divisionWinProbMap.set(dp.team_id, dp.win_division_probability)
-  })
+  const rankings = await getRankings();
 
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-8">
-      <Standings title="NFC East" teams={teams.filter((team) => team.division === 'NFC East')} probabilityMap={divisionWinProbMap} />
-      <Standings title="NFC North" teams={teams.filter((team) => team.division === 'NFC North')} probabilityMap={divisionWinProbMap} />
-      <Standings title="NFC South" teams={teams.filter((team) => team.division === 'NFC South')} probabilityMap={divisionWinProbMap} />
-      <Standings title="NFC West" teams={teams.filter((team) => team.division === 'NFC West')} probabilityMap={divisionWinProbMap} />
-      <Standings title="AFC East" teams={teams.filter((team) => team.division === 'AFC East')} probabilityMap={divisionWinProbMap} />
-      <Standings title="AFC North" teams={teams.filter((team) => team.division === 'AFC North')} probabilityMap={divisionWinProbMap} />
-      <Standings title="AFC South" teams={teams.filter((team) => team.division === 'AFC South')} probabilityMap={divisionWinProbMap} />
-      <Standings title="AFC West" teams={teams.filter((team) => team.division === 'AFC West')} probabilityMap={divisionWinProbMap} />
+      <Standings title="NFC East" orderedTeams={rankings.filter((team) => team.division === 'NFC East')} />
+      <Standings title="NFC North" orderedTeams={rankings.filter((team) => team.division === 'NFC North')} />
+      <Standings title="NFC South" orderedTeams={rankings.filter((team) => team.division === 'NFC South')} />
+      <Standings title="NFC West" orderedTeams={rankings.filter((team) => team.division === 'NFC West')} />
+      <Standings title="AFC East" orderedTeams={rankings.filter((team) => team.division === 'AFC East')} />
+      <Standings title="AFC North" orderedTeams={rankings.filter((team) => team.division === 'AFC North')} />
+      <Standings title="AFC South" orderedTeams={rankings.filter((team) => team.division === 'AFC South')} />
+      <Standings title="AFC West" orderedTeams={rankings.filter((team) => team.division === 'AFC West')} />
 
 
     </div>
