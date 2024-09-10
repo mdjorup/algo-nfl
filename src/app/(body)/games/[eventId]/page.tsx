@@ -1,9 +1,10 @@
+import DateRender from '@/components/DateRender';
 import SportsbookOddsTable from '@/components/SportsbookOddsTable';
 import { COLORS } from '@/lib/consts';
 import { getEvent, getEventOdds, getWinProbability } from '@/lib/dbFns';
 import { formatAsPercent } from '@/lib/format-utils';
 import { EventOdds } from '@/lib/types';
-import { addSeconds, format, subDays } from 'date-fns';
+import { addSeconds, subDays } from 'date-fns';
 import Image from 'next/image';
 import ProbabilityChart from './ProbabilityChart';
 
@@ -101,18 +102,13 @@ const GamePage = async ({ params }: { params: { eventId: string } }) => {
 
   const currentOdds = latestSportsbookOdds[latestSportsbookOdds.length - 1]
 
-  const formatGameTime = (date: Date | string) => {
-    return format(new Date(date), 'MMM d, h:mm a');
-  };
-
-
 
   const winProbabilities = currentOdds ? getWinProbability(currentOdds.home_odds, currentOdds.away_odds) : null;
 
   const homeColor = COLORS[event.home_name]; // #123abc
   const awayColor = COLORS[event.away_name]; // #abc123
 
-  const centerTimeString = event.completed ? 'Final Score' : new Date() < event.commence_time ? formatGameTime(event.commence_time) : 'In Progress';
+  const centerTimeString = event.completed ? 'Final Score' : new Date() < event.commence_time ? <DateRender date={event.commence_time} dateFormat='MMM d, h:mm a' /> : 'In Progress';
   // 
 
   return (
@@ -158,7 +154,7 @@ interface TeamInfoProps {
 };
 
 interface GameStatusProps {
-  centerTimeString: string;
+  centerTimeString: React.ReactNode;
   awayScore: number | null;
   homeScore: number | null;
   isCompleted: boolean;
