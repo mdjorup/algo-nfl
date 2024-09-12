@@ -12,7 +12,7 @@ const config = {
     prefix: "",
     safelist: [
         {
-            pattern: /^from-/, // This will include all classes starting with 'bg-'
+            pattern: /^fill-/, // This will include all classes starting with 'bg-'
         },
     ],
     theme: {

@@ -1,7 +1,7 @@
 import { addDays } from "date-fns";
 import { SEASON, seasonStart } from "./consts";
 import { query } from "./db";
-import { Event, EventOdds, Team } from "./types";
+import { Event, EventOdds, SeasonSimulation, Team } from "./types";
 
 export const getWinProbability = (homeOdds: number, awayOdds: number) => {
     const totalOdds = homeOdds + awayOdds;
@@ -199,4 +199,17 @@ export const getAllTeams = async () => {
     ]);
 
     return teams;
+};
+
+export const getTeamSeasonSimulations = async (teamName: string) => {
+    const results = await query<SeasonSimulation>(
+        `
+        select nss.* from nfl_season_simulation nss 
+        left join teams t on t.id = nss.team_id 
+        where t.name = $1;
+        `,
+        [teamName]
+    );
+
+    return results;
 };
