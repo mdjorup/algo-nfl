@@ -41,24 +41,22 @@ export const RadialChart: React.FC<RadialChartProps> = ({ label, teamName, fillC
     { name: 'background', value: 100 },
   ]
 
-  const endAngle = fillPercent * 360;
-
   return (
     <Card className="flex flex-col">
-      <CardHeader className="items-center pb-0">
-        <CardTitle>{label}</CardTitle>
+      <CardHeader className="p-3 pb-0">
+        <CardTitle className="text-sm">{label}</CardTitle>
       </CardHeader>
-      <CardContent className="flex-1 pb-0">
+      <CardContent className="flex-1 p-3">
         <ChartContainer
           config={chartConfig}
-          className="mx-auto aspect-square max-h-[250px]"
+          className="mx-auto aspect-square max-h-[180px]"
         >
           <RadialBarChart
             data={chartData}
             startAngle={90}
             endAngle={-270}
-            innerRadius={80}
-            outerRadius={110}
+            innerRadius={60}
+            outerRadius={120}
           >
             <PolarGrid
               gridType="circle"
@@ -68,14 +66,14 @@ export const RadialChart: React.FC<RadialChartProps> = ({ label, teamName, fillC
             <RadialBar
               dataKey="value"
               background
-              cornerRadius={10}
+              cornerRadius={8}
               data={[chartData[1]]}
-              fill="#ffffff"            // Light gray background
+              fill="#ffffff"
             />
             <RadialBar
               dataKey="value"
               background
-              cornerRadius={10}
+              cornerRadius={8}
               data={[chartData[0]]}
               className={`fill-${fillColor}`}
             />
@@ -93,7 +91,7 @@ export const RadialChart: React.FC<RadialChartProps> = ({ label, teamName, fillC
                         <tspan
                           x={viewBox.cx}
                           y={viewBox.cy}
-                          className="fill-foreground text-4xl font-bold"
+                          className="fill-foreground text-3xl font-bold"
                         >
                           {centerText}
                         </tspan>
@@ -106,10 +104,9 @@ export const RadialChart: React.FC<RadialChartProps> = ({ label, teamName, fillC
           </RadialBarChart>
         </ChartContainer>
       </CardContent>
-      {change && <CardFooter className="flex-col gap-2 text-sm">
-        <div className={cn("flex items-center gap-2 font-medium leading-none", change > 0 ? 'text-green-500' : 'text-destructive')}>
-          {
-            change > 0 ? "Up" : "Down"} {(change * 100).toFixed(1) + "%"} {change > 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
+      {change && <CardFooter className="p-3 pt-0 text-xs">
+        <div className={cn("flex items-center gap-1 font-medium leading-none", change > 0 ? 'text-green-500' : 'text-destructive')}>
+          {change > 0 ? "Up" : "Down"} {(change * 100).toFixed(1) + "%"} {change > 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
         </div>
       </CardFooter>}
     </Card>
