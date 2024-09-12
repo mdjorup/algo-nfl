@@ -1,12 +1,14 @@
 import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
-import { Noto_Sans_Mono as FontSans } from "next/font/google";
+import { Kode_Mono as FontSans } from "next/font/google";
 import "./globals.css";
 import { CSPostHogProvider } from "./providers";
 
 const fontSans = FontSans({
   subsets: ["latin"],
+  weight: "600",
   variable: "--font-sans",
+
 })
 
 export const metadata: Metadata = {

@@ -33,6 +33,15 @@ const MainNav = () => {
           </Link>
         </NavigationMenuItem> */}
         <NavigationMenuItem>
+          <Link href="/teams" legacyBehavior passHref>
+            <NavigationMenuLink
+              className={navigationMenuTriggerStyle()}
+            >
+              Teams
+            </NavigationMenuLink>
+          </Link>
+        </NavigationMenuItem>
+        {/* <NavigationMenuItem>
           <Link href="/standings" legacyBehavior passHref>
             <NavigationMenuLink
               className={navigationMenuTriggerStyle()}
@@ -40,7 +49,7 @@ const MainNav = () => {
               Standings
             </NavigationMenuLink>
           </Link>
-        </NavigationMenuItem>
+        </NavigationMenuItem> */}
         <NavigationMenuItem>
           <Link href="/playoff-picture" legacyBehavior passHref>
             <NavigationMenuLink

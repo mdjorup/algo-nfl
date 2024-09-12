@@ -1,8 +1,6 @@
 
-import { Badge } from '@/components/ui/badge';
 import { DataTable } from '@/components/ui/data-table';
 import { query } from '@/lib/db';
-import { formatAsPercent } from '@/lib/format-utils';
 import { columns, SeasonSimulationRow } from './columns';
 
 
@@ -74,23 +72,12 @@ const getBackgroundColor = (probability: number) => {
   return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
 };
 
-const ProbabilityBadge = ({ probability }: { probability: number }) => (
-  <Badge
-    style={{
-      backgroundColor: getBackgroundColor(probability),
-      color: 'white',
-    }}
-  >
-    {formatAsPercent(probability)}
-  </Badge>
-);
-
 
 const PlayoffPicturePage = async () => {
 
   const data = await getSeasonSimulations();
 
-  const sorted = data.sort((a, b) => b.make_playoffs_probability - a.make_playoffs_probability)
+  data.sort((a, b) => b.make_playoffs_probability - a.make_playoffs_probability)
 
   return (
     <div className='container mx-auto py-10'>

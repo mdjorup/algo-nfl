@@ -16,7 +16,7 @@ from tqdm import tqdm
 load_dotenv()
 
 CURRENT_SEASON = "2024"
-SIMULATION_GROUP = 0
+SIMULATION_GROUP = 1
 N_SIMULATIONS = 100000
 
 dbname = os.getenv("DB_DATABASE")
@@ -381,12 +381,30 @@ def simulate_season():
     results_map = {}  # maps team_id: {wins: [event_ids], losses: [event_ids]}
 
     for team_id in team_map.keys():
-        results_map[team_id] = {"wins": [], "losses": []}
+        results_map[team_id] = {"wins": [], "losses": [], "ties": []}
 
     for _, event in event_map.items():
 
         home_team_id = event.home_team_id
         away_team_id = event.away_team_id
+
+        completed = event.completed
+
+        if completed:
+            home_score = event.home_score
+            away_score = event.away_score
+
+            if home_score > away_score:
+                results_map[home_team_id]["wins"].append(event.id)
+                results_map[away_team_id]["losses"].append(event.id)
+            elif away_score > home_score:
+                results_map[home_team_id]["losses"].append(event.id)
+                results_map[away_team_id]["wins"].append(event.id)
+            else:
+                results_map[home_team_id]["ties"].append(event.id)
+                results_map[away_team_id]["ties"].append(event.id)
+
+            continue
 
         event_odd = event_odds_map[event.id]
 
@@ -444,19 +462,28 @@ def simulate_season():
     return (
         nfc_conf_winner_rankings + nfc_wildcard_rankings,
         afc_conf_winner_rankings + afc_wildcard_rankings,
+        results_map,
     )
 
 
 def simulate_n(n_simulations=1000):
 
     results = {
-        team_id: {"win_conference": float(0), "win_division": 0, "make_playoffs": 0}
+        team_id: {
+            "win_conference": float(0),
+            "win_division": 0,
+            "make_playoffs": 0,
+            "expected_wins": RunningAverage(),
+        }
         for team_id in team_map.keys()
     }
 
     for i in tqdm(range(n_simulations)):
 
-        nfc_rankings, afc_rankings = simulate_season()
+        nfc_rankings, afc_rankings, results_map = simulate_season()
+
+        for team_id, team_results in results_map.items():
+            results[team_id]["expected_wins"].add(len(team_results["wins"]))
 
         for i in range(7):
 
@@ -491,21 +518,22 @@ def run_and_update():
 
         for team_id, team_results in results.items():
             print(
-                f"{team_id}: {team_results['make_playoffs']} - {team_results['win_division']} - {team_results['win_conference']}"
+                f"{team_id}: {team_results['make_playoffs']} - {team_results['win_division']} - {team_results['win_conference']} -- {team_results['expected_wins'].get_average()} Expected Wins"
             )
 
             cursor.execute(
                 """
-                INSERT INTO nfl_season_simulation 
-                    (team_id, simulation_group, make_playoffs_probability, win_division_probability, win_conference_probability, n_simulations)
-                VALUES 
-                    (%s, %s, %s, %s, %s, %s)
+                INSERT INTO nfl_season_simulation
+                    (team_id, simulation_group, make_playoffs_probability, win_division_probability, win_conference_probability, n_simulations, expected_wins)
+                VALUES
+                    (%s, %s, %s, %s, %s, %s, %s)
                 ON CONFLICT (simulation_group, team_id)
                 DO UPDATE SET
                     make_playoffs_probability = EXCLUDED.make_playoffs_probability,
                     win_division_probability = EXCLUDED.win_division_probability,
                     win_conference_probability = EXCLUDED.win_conference_probability,
                     n_simulations = EXCLUDED.n_simulations,
+                    expected_wins = EXCLUDED.expected_wins,
                     created_at = CURRENT_TIMESTAMP;
                 """,
                 (
@@ -515,6 +543,7 @@ def run_and_update():
                     team_results["win_division"],
                     team_results["win_conference"],
                     N_SIMULATIONS,
+                    team_results["expected_wins"].get_average(),
                 ),
             )
 

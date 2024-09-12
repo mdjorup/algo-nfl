@@ -1,6 +1,10 @@
 
-const Page = () => {
+const Page = (
+  { params }: {
+    params: { eventId: string }
+  }) => {
   return (
+
     <div>Page</div>
   )
 }

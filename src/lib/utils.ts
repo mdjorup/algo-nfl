@@ -18,3 +18,7 @@ export const getWinProbability = (homeOdds: number, awayOdds: number) => {
 
     return { homeWinProbability, awayWinProbability };
 };
+
+export const getColorKey = (name: string) => {
+    return name.toLowerCase().replace(/\s/g, "-");
+};

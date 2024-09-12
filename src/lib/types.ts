@@ -47,6 +47,7 @@ export interface SeasonSimulation {
     make_playoffs_probability: number;
     win_division_probability: number;
     win_conference_probability: number;
+    expected_wins?: number;
     n_simulations: number;
 }
 
