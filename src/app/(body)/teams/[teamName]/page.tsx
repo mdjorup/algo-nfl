@@ -9,6 +9,7 @@
 // Schedule and results 
 
 import Image from "next/image";
+import { redirect } from "next/navigation";
 
 
 
@@ -23,11 +24,7 @@ const Page = async (
   const teamName = formatTeamName(params.teamName ?? '');
 
   if (!teamName) {
-    return (
-      <div>
-        <p>Team not found</p>
-      </div>
-    )
+    redirect('/teams')
   }
 
 

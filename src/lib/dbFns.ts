@@ -190,7 +190,6 @@ export const getAllLatestEventOdds = async () => {
     event_id`,
         []
     );
-    console.log(results);
 
     return results;
 };
