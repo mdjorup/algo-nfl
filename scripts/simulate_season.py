@@ -16,7 +16,7 @@ from tqdm import tqdm
 load_dotenv()
 
 CURRENT_SEASON = "2024"
-SIMULATION_GROUP = 1
+SIMULATION_GROUP = 2
 N_SIMULATIONS = 100000
 
 dbname = os.getenv("DB_DATABASE")
@@ -518,15 +518,15 @@ def run_and_update():
 
         for team_id, team_results in results.items():
             print(
-                f"{team_id}: {team_results['make_playoffs']} - {team_results['win_division']} - {team_results['win_conference']} -- {team_results['expected_wins'].get_average()} Expected Wins"
+                f"{team_id}: {team_results['make_playoffs']} - {team_results['win_division']} - {team_results['win_conference']} -- {team_results['expected_wins'].get_average()} / {team_results['expected_wins'].get_standard_deviation()} Expected Wins"
             )
 
             cursor.execute(
                 """
                 INSERT INTO nfl_season_simulation
-                    (team_id, simulation_group, make_playoffs_probability, win_division_probability, win_conference_probability, n_simulations, expected_wins)
+                    (team_id, simulation_group, make_playoffs_probability, win_division_probability, win_conference_probability, n_simulations, expected_wins, expected_wins_std)
                 VALUES
-                    (%s, %s, %s, %s, %s, %s, %s)
+                    (%s, %s, %s, %s, %s, %s, %s, %s)
                 ON CONFLICT (simulation_group, team_id)
                 DO UPDATE SET
                     make_playoffs_probability = EXCLUDED.make_playoffs_probability,
@@ -534,6 +534,7 @@ def run_and_update():
                     win_conference_probability = EXCLUDED.win_conference_probability,
                     n_simulations = EXCLUDED.n_simulations,
                     expected_wins = EXCLUDED.expected_wins,
+                    expected_wins_std = EXCLUDED.expected_wins_std,
                     created_at = CURRENT_TIMESTAMP;
                 """,
                 (
@@ -544,6 +545,7 @@ def run_and_update():
                     team_results["win_conference"],
                     N_SIMULATIONS,
                     team_results["expected_wins"].get_average(),
+                    team_results["expected_wins"].get_standard_deviation(),
                 ),
             )
 

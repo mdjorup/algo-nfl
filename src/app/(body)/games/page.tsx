@@ -23,8 +23,7 @@ const GamePage = async ({
     end = weekRange.end
   }
 
-  const events = await getAllEventsWithNames();
-  const odds = await getAllLatestEventOdds();
+  const [events, odds] = await Promise.all([getAllEventsWithNames(), getAllLatestEventOdds()]);
 
   const currentWeekEvents = events.filter((event) => {
     return event.commence_time >= start && event.commence_time < end
@@ -97,7 +96,7 @@ const GamePage = async ({
           {
             inProgressEvents.sort((e1, e2) => e1.commence_time.getTime() - e2.commence_time.getTime()).map((event, i) => {
               const gameOdds = getOddsForEvent(event.id)
-              return <Game key={i} id={event.id} commence_time={event.commence_time} away_name={event.away_name} home_name={event.home_name} away_score={event.away_score} home_score={event.home_score} odds_timestamp={gameOdds?.latest_timestamp} home_team_odds={gameOdds?.home_odds_ema ?? 2} away_team_odds={gameOdds?.away_odds_ema ?? 2} completed={event.completed} />
+              return <Game key={i} id={event.id} commence_time={event.commence_time} away_name={event.away_name} home_name={event.home_name} away_score={event.away_score} home_score={event.home_score} odds_timestamp={gameOdds?.latest_timestamp} home_team_odds={gameOdds?.home_odds_avg ?? 2} away_team_odds={gameOdds?.away_odds_avg ?? 2} completed={event.completed} />
             })
           }
         </div>
@@ -108,7 +107,7 @@ const GamePage = async ({
           {
             upcomingEvents.sort((e1, e2) => e1.commence_time.getTime() - e2.commence_time.getTime()).map((event, i) => {
               const gameOdds = getOddsForEvent(event.id)
-              return <Game key={i} id={event.id} commence_time={event.commence_time} away_name={event.away_name} home_name={event.home_name} away_score={event.away_score} home_score={event.home_score} odds_timestamp={gameOdds?.latest_timestamp} home_team_odds={gameOdds?.home_odds_ema ?? 2} away_team_odds={gameOdds?.away_odds_ema ?? 2} completed={event.completed} />
+              return <Game key={i} id={event.id} commence_time={event.commence_time} away_name={event.away_name} home_name={event.home_name} away_score={event.away_score} home_score={event.home_score} odds_timestamp={gameOdds?.latest_timestamp} home_team_odds={gameOdds?.home_odds_avg ?? 2} away_team_odds={gameOdds?.away_odds_avg ?? 2} completed={event.completed} />
             })
           }
         </div>
@@ -119,7 +118,7 @@ const GamePage = async ({
           {
             completedEvents.sort((e1, e2) => e1.commence_time.getTime() - e2.commence_time.getTime()).map((event, i) => {
               const gameOdds = getOddsForEvent(event.id)
-              return <Game key={i} id={event.id} commence_time={event.commence_time} away_name={event.away_name} home_name={event.home_name} away_score={event.away_score} home_score={event.home_score} odds_timestamp={gameOdds?.latest_timestamp} home_team_odds={gameOdds?.home_odds_ema ?? 2} away_team_odds={gameOdds?.away_odds_ema ?? 2} completed={event.completed} />
+              return <Game key={i} id={event.id} commence_time={event.commence_time} away_name={event.away_name} home_name={event.home_name} away_score={event.away_score} home_score={event.home_score} odds_timestamp={gameOdds?.latest_timestamp} home_team_odds={gameOdds?.home_odds_avg ?? 2} away_team_odds={gameOdds?.away_odds_avg ?? 2} completed={event.completed} />
             })
           }
         </div>

@@ -152,43 +152,45 @@ export const getAllEventsWithNames = async () => {
 export const getAllLatestEventOdds = async () => {
     const results = await query<{
         event_id: string;
-        home_odds_ema: number;
-        away_odds_ema: number;
+        home_odds_avg: number;
+        away_odds_avg: number;
         latest_timestamp: Date;
     }>(
         `WITH latest_odds AS (
     SELECT 
       event_id,
-      home_odds,
-      away_odds,
-      timestamp,
-      ROW_NUMBER() OVER (PARTITION BY event_id ORDER BY timestamp DESC) as rn
+      MAX(timestamp) as latest_timestamp
     FROM 
       event_odds
+    GROUP BY 
+      event_id
   ),
-  ema_calc AS (
+  odds_within_timeframe AS (
     SELECT 
-      event_id,
-      home_odds,
-      away_odds,
-      timestamp,
-      EXP(SUM(LN(0.2)) OVER (PARTITION BY event_id ORDER BY timestamp DESC ROWS BETWEEN CURRENT ROW AND 9 FOLLOWING)) as weight
+      eo.event_id,
+      eo.home_odds,
+      eo.away_odds,
+      eo.timestamp
     FROM 
-      latest_odds
+      event_odds eo
+    JOIN 
+      latest_odds lo ON eo.event_id = lo.event_id
     WHERE 
-      rn <= 10
+      eo.timestamp >= lo.latest_timestamp - INTERVAL '5 minutes'
+      AND eo.timestamp <= lo.latest_timestamp
   )
   SELECT 
     event_id,
     MAX(timestamp) as latest_timestamp,
-    SUM(home_odds * weight) / SUM(weight) as home_odds_ema,
-    SUM(away_odds * weight) / SUM(weight) as away_odds_ema
+    AVG(home_odds) as home_odds_avg,
+    AVG(away_odds) as away_odds_avg
   FROM 
-    ema_calc
+    odds_within_timeframe
   GROUP BY 
     event_id`,
         []
     );
+    console.log(results);
 
     return results;
 };
