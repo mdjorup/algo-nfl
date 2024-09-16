@@ -48,6 +48,7 @@ export interface SeasonSimulation {
     win_division_probability: number;
     win_conference_probability: number;
     expected_wins?: number;
+    expected_wins_std?: number;
     n_simulations: number;
 }
 
