@@ -18,7 +18,7 @@ from tqdm import tqdm
 load_dotenv()
 
 CURRENT_SEASON = "2024"
-SIMULATION_GROUP = 2
+SIMULATION_GROUP = 4
 N_SIMULATIONS = 100000
 
 dbname = os.getenv("DB_DATABASE")
@@ -296,77 +296,6 @@ def compute_win_prob(home_odds: float, away_odds: float):
     away_win_prob = implied_away_prob / total
 
     return home_win_prob, away_win_prob
-
-
-def compare_fn(results, team_id_1, team_id_2):
-
-    # return -1 if team_id_1 wins, 1 if team_id_2 wins
-
-    team_1_results = results[team_id_1]
-    team_2_results = results[team_id_2]
-
-    team_1_wins = len(team_1_results["wins"])
-    team_2_wins = len(team_2_results["wins"])
-
-    # just by wins
-
-    if team_1_wins > team_2_wins:
-        return -1
-    elif team_2_wins > team_1_wins:
-        return 1
-
-    conf_teams = (
-        nfc_teams if team_map[team_id_1].division.startswith("NFC") else afc_teams
-    )
-
-    # team_1 division games
-
-    team_1_division_wins = len(
-        [
-            eid
-            for eid in team_1_results["wins"]
-            if event_map[eid].away_team_id in conf_teams
-            and event_map[eid].home_team_id in conf_teams
-        ]
-    )
-    team_1_division_losses = len(
-        [
-            eid
-            for eid in team_1_results["losses"]
-            if event_map[eid].away_team_id in conf_teams
-            and event_map[eid].home_team_id in conf_teams
-        ]
-    )
-    team_1_division_pct = team_1_division_wins / (
-        team_1_division_wins + team_1_division_losses
-    )
-
-    team_2_division_wins = len(
-        [
-            eid
-            for eid in team_2_results["wins"]
-            if event_map[eid].away_team_id in conf_teams
-            and event_map[eid].home_team_id in conf_teams
-        ]
-    )
-    team_2_division_losses = len(
-        [
-            eid
-            for eid in team_2_results["losses"]
-            if event_map[eid].away_team_id in conf_teams
-            and event_map[eid].home_team_id in conf_teams
-        ]
-    )
-    team_2_division_pct = team_2_division_wins / (
-        team_2_division_wins + team_2_division_losses
-    )
-
-    if team_1_division_pct > team_2_division_pct:
-        return -1
-    elif team_2_division_pct > team_1_division_pct:
-        return 1
-
-    return 0
 
 
 class RankingType(Enum):
@@ -708,32 +637,7 @@ def break_division_tie(results, teams) -> tuple[str, List[str]]:
         if len(sos_winners) == 1:
             return sos_winners[0], sos_losers
 
-        # # 7) sum of points allowed and points scored conference rankings
-        # print(
-        #     f"6) Conference Points Ranking {', '.join([team_map[t].name for t in teams])}"
-        # )
-
-        # points_ranking_conference_winners, points_ranking_conference_losers = (
-        #     get_points_ranking(results, teams, conference=True)
-        # )
-        # if len(points_ranking_conference_winners) == 1:
-        #     return (
-        #         points_ranking_conference_winners[0],
-        #         points_ranking_conference_losers,
-        #     )
-
-        # print(f"6) All Points Ranking {', '.join([team_map[t].name for t in teams])}")
-
-        # # 8) sum of points allowed and points scored overall rankings
-        # points_ranking_winners, points_ranking_losers = get_points_ranking(
-        #     results, teams, conference=False
-        # )
-        # if len(points_ranking_winners) == 1:
-        #     return points_ranking_winners[0], points_ranking_losers
-
-        # TODO: 9) net points in common games
-
-        # TODO: 10) net points in all games
+        # Next are points rankings... Not implementing for now
 
         return teams[0], teams[1:]
     elif len(teams) >= 3:
@@ -762,6 +666,17 @@ def break_conference_tie(results, teams):
         teams = h2h_winners
 
         # print("2) Conference WLT ")
+
+        # 2) conference record
+        conference_winners, conference_losers = get_conference_record_results(
+            results, teams
+        )
+        if len(conference_winners) == 1:
+            return conference_winners[0], conference_losers
+
+        teams = conference_winners
+
+        # print("3) Strength of Victory")
 
         return teams[0], teams[1:]
     elif len(teams) >= 3:
@@ -816,11 +731,7 @@ def compute_rankings(
     else:
         final_ranking.extend(current_win_list)
 
-    teams_sorted = sorted(
-        team_ids, key=cmp_to_key(lambda t1, t2: compare_fn(results, t1, t2))
-    )
-
-    return teams_sorted
+    return final_ranking
 
 
 def simulate_season():
@@ -937,6 +848,7 @@ def simulate_n(n_simulations=1000):
             "win_division": 0,
             "make_playoffs": 0,
             "expected_wins": RunningAverage(),
+            "wins": {w: 0 for w in range(0, 18)},
         }
         for team_id in team_map.keys()
     }
@@ -946,6 +858,8 @@ def simulate_n(n_simulations=1000):
         nfc_rankings, afc_rankings, results_map = simulate_season()
 
         for team_id, team_results in results_map.items():
+            n_wins = len(team_results["wins"])
+            results[team_id]["wins"][n_wins] += 1
             results[team_id]["expected_wins"].add(len(team_results["wins"]))
 
         for i in range(7):
@@ -965,6 +879,8 @@ def simulate_n(n_simulations=1000):
         results[team_id]["make_playoffs"] /= n_simulations
         results[team_id]["win_division"] /= n_simulations
         results[team_id]["win_conference"] /= n_simulations
+        for i in results[team_id]["wins"].keys():
+            results[team_id]["wins"][i] /= n_simulations
 
     return results
 
@@ -983,13 +899,14 @@ def run_and_update():
             print(
                 f"{team_id}: {team_results['make_playoffs']} - {team_results['win_division']} - {team_results['win_conference']} -- {team_results['expected_wins'].get_average()} / {team_results['expected_wins'].get_standard_deviation()} Expected Wins"
             )
+            print(team_results["wins"])
 
             cursor.execute(
                 """
                 INSERT INTO nfl_season_simulation
-                    (team_id, simulation_group, make_playoffs_probability, win_division_probability, win_conference_probability, n_simulations, expected_wins, expected_wins_std)
+                    (team_id, simulation_group, make_playoffs_probability, win_division_probability, win_conference_probability, n_simulations, expected_wins, expected_wins_std, win_total_probabilities)
                 VALUES
-                    (%s, %s, %s, %s, %s, %s, %s, %s)
+                    (%s, %s, %s, %s, %s, %s, %s, %s, %s)
                 ON CONFLICT (simulation_group, team_id)
                 DO UPDATE SET
                     make_playoffs_probability = EXCLUDED.make_playoffs_probability,
@@ -998,6 +915,7 @@ def run_and_update():
                     n_simulations = EXCLUDED.n_simulations,
                     expected_wins = EXCLUDED.expected_wins,
                     expected_wins_std = EXCLUDED.expected_wins_std,
+                    win_total_probabilities = EXCLUDED.win_total_probabilities,
                     created_at = CURRENT_TIMESTAMP;
                 """,
                 (
@@ -1009,6 +927,7 @@ def run_and_update():
                     N_SIMULATIONS,
                     team_results["expected_wins"].get_average(),
                     team_results["expected_wins"].get_standard_deviation(),
+                    json.dumps(team_results["wins"]),
                 ),
             )
 

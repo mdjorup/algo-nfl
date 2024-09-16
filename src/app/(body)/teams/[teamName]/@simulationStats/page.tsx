@@ -5,25 +5,6 @@ import WinDistributionChart from "./WinDistributionChart";
 const formatTeamName = (team: string) => team.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
 
 
-const normalDistribution = (x: number, mean: number, stdDev: number) => {
-  const coefficient = 1 / (stdDev * Math.sqrt(2 * Math.PI))
-  const exponent = -Math.pow(x - mean, 2) / (2 * Math.pow(stdDev, 2))
-  return coefficient * Math.exp(exponent)
-}
-
-const getChartData = (averageWins: number, stdDev: number) => {
-  // find probability of each win total
-  const data = []
-  for (let i = 0; i <= 17; i++) {
-    data.push({
-      wins: i,
-      probability: normalDistribution(i, averageWins, stdDev),
-    })
-  }
-  return data
-}
-
-
 const SimulationStats = async (
   { params }: {
     params: { teamName: string }
@@ -36,11 +17,7 @@ const SimulationStats = async (
   const latestSimulation = seasonSimulations[seasonSimulations.length - 1];
   const previousSimulation = seasonSimulations[seasonSimulations.length - 2];
 
-
-  const latestExpectedWins = latestSimulation.expected_wins;
-  const previousExpectedWins = previousSimulation.expected_wins;
-
-  const distributionChartData = getChartData(latestExpectedWins ?? 8, latestSimulation.expected_wins_std ?? 1);
+  const distributionChartData = latestSimulation.win_total_probabilities ?? {}
 
   return (
     <div>

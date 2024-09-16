@@ -49,6 +49,7 @@ export interface SeasonSimulation {
     win_conference_probability: number;
     expected_wins?: number;
     expected_wins_std?: number;
+    win_total_probabilities?: { [key: string]: number };
     n_simulations: number;
 }
 

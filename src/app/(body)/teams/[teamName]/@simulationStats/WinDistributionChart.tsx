@@ -13,19 +13,33 @@ import { formatAsPercent } from "@/lib/format-utils"
 export const description = "A bar chart"
 
 interface WinDistributionChartProps {
-  data: { wins: number, probability: number }[];
+  data: { [key: string]: number };
   color: string;
+}
+
+const getChartData = (rawChartData: { [key: string]: number }) => {
+  // find probability of each win total
+  const data = []
+  for (let i = 0; i <= 17; i++) {
+    const dataKey = i.toString();
+    data.push({
+      wins: i,
+      probability: rawChartData[i] ?? 0
+    })
+  }
+  return data
 }
 
 const WinDistributionChart: React.FC<WinDistributionChartProps> = ({ data, color }) => {
 
+  const chartData = getChartData(data);
   return (
     <Card>
       <CardHeader>
         <CardTitle>Win Distribution</CardTitle>
       </CardHeader>
       <CardContent>
-        <BarChart width={600} height={300} data={data}>
+        <BarChart width={600} height={300} data={chartData}>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis
             dataKey="wins"
