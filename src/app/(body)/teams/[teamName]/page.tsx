@@ -31,7 +31,7 @@ const Page = async (
 
   return (
 
-    <div className="">
+    <div className="mb-4">
       <div className="flex items-center">
         <Image src={`/${formatTeamName(params.teamName)}.png`} width={50} height={50} alt={teamName} />
         <p className="text-3xl ml-4">{teamName}</p>

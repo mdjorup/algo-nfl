@@ -18,7 +18,6 @@ import {
 } from "@/components/ui/card";
 import { ChartConfig, ChartContainer } from "@/components/ui/chart";
 import { cn } from "@/lib/utils";
-import { TrendingDown, TrendingUp } from "lucide-react";
 
 interface RadialChartProps {
   label: string;
@@ -106,7 +105,7 @@ export const RadialChart: React.FC<RadialChartProps> = ({ label, teamName, fillC
       </CardContent>
       {change && <CardFooter className="p-3 pt-0 text-xs">
         <div className={cn("flex items-center gap-1 font-medium leading-none", change > 0 ? 'text-green-500' : 'text-destructive')}>
-          {change > 0 ? "Up" : "Down"} {(change * 100).toFixed(1) + "%"} {change > 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+          {(change * 100).toFixed(1) + "%"} in the past week
         </div>
       </CardFooter>}
     </Card>

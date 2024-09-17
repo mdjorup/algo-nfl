@@ -68,7 +68,7 @@ const TeamSchedule = async ({ params }: { params: { teamName: string } }) => {
                 <TableCell>{week}</TableCell>
                 <TableCell className="flex items-center gap-2">
                   <Image src={`/${opponent}.png`} width={30} height={30} alt={opponent} />
-                  <span>{opponent.split(" ").pop()}</span>
+                  <span className="hidden md:block">{opponent.split(" ").pop()}</span>
                 </TableCell>
                 <TableCell><DateRender date={event.commence_time} dateFormat="MM/dd" /></TableCell>
                 <TableCell className="text-right">
