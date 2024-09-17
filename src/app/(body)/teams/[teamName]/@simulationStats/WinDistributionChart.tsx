@@ -64,7 +64,7 @@ const WinDistributionChart: React.FC<WinDistributionChartProps> = ({ data, color
               formatter={(value: number) => formatAsPercent(value, 0)}
               labelFormatter={(label: number) => `Wins: ${label}`}
             />
-            <Bar dataKey="probability" fill={color} />
+            <Bar dataKey="probability" className={`fill-${color}`} />
           </BarChart>
         </ResponsiveContainer>
       </CardContent>

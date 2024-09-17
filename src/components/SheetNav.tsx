@@ -30,7 +30,7 @@ export const SheetNav = () => {
         </SheetHeader>
         <nav className="flex flex-col space-y-4 mt-4">
           <NavLink href="/">Home</NavLink>
-          <NavLink href="/standings">Standings</NavLink>
+          <NavLink href="/teams">Teams</NavLink>
           <NavLink href="/playoff-picture">Playoff Picture</NavLink>
         </nav>
       </SheetContent>
