@@ -48,10 +48,10 @@ const WinDistributionChart: React.FC<WinDistributionChartProps> = ({ data, color
             min={0}
           />
           <YAxis
-            label={{ value: 'Probability', angle: -90, position: 'insideLeft' }}
+            tickFormatter={(value: number) => formatAsPercent(value)}
           />
           <Tooltip
-            formatter={(value: number) => formatAsPercent(value)}
+            formatter={(value: number) => formatAsPercent(value, 0)}
             labelFormatter={(label: number) => `Wins: ${label}`}
           />
           <Bar dataKey="probability" className={`fill-${color}`} />

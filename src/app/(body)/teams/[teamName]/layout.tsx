@@ -12,13 +12,11 @@ const TeamPageLayout = ({
   return (
     <>
       {children}
-      <div className='flex gap-8 '>
-        <div className='w-1/2'>
-
+      <div className="flex flex-col gap-8 lg:flex-row">
+        <div className="w-full lg:w-1/2">
           {schedule}
         </div>
-        <div className='w-1/2'>
-
+        <div className="w-full lg:w-1/2">
           {simulationStats}
         </div>
       </div>

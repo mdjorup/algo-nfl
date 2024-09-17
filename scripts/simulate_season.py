@@ -18,7 +18,7 @@ from tqdm import tqdm
 load_dotenv()
 
 CURRENT_SEASON = "2024"
-SIMULATION_GROUP = 4
+SIMULATION_GROUP = 5
 N_SIMULATIONS = 100000
 
 dbname = os.getenv("DB_DATABASE")
@@ -652,9 +652,10 @@ def break_division_tie(results, teams) -> tuple[str, List[str]]:
 def break_conference_tie(results, teams):
     # TODO: Implement
     # return a winning team, losing teams
+
     if len(teams) == 1:
         return teams[0], []
-    elif len(teams) == 2:
+    elif len(teams) >= 2:
         # head to head
 
         # 1) head to head
@@ -663,24 +664,28 @@ def break_conference_tie(results, teams):
         if len(h2h_winners) == 1:
             return h2h_winners[0], h2h_losers
 
-        teams = h2h_winners
+        new_teams = h2h_winners
 
         # print("2) Conference WLT ")
 
         # 2) conference record
         conference_winners, conference_losers = get_conference_record_results(
-            results, teams
+            results, new_teams
         )
         if len(conference_winners) == 1:
-            return conference_winners[0], conference_losers
+            return conference_winners[0], [
+                t for t in teams if t != conference_winners[0]
+            ]
 
-        teams = conference_winners
+        new_teams = conference_winners
 
         # print("3) Strength of Victory")
+        sov_winners, sov_losers = get_strength_of_victory(results, new_teams)
+        if len(sov_winners) == 1:
+            return sov_winners[0], [t for t in teams if t != sov_winners[0]]
 
-        return teams[0], teams[1:]
-    elif len(teams) >= 3:
-        # 3 or more team tiebreaker
+        new_teams = sov_winners
+
         return teams[0], teams[1:]
     else:
         return teams[0], teams[1:]
