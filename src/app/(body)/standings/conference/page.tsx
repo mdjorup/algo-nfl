@@ -1,5 +1,6 @@
 import Standings from "@/components/Standings";
-import { getConferenceRankings } from "@/lib/rankings";
+import { getAllEvents, getAllTeams } from "@/lib/dbFns";
+import { getTeamRecord, rankTeams } from "../standingsUtils";
 
 
 interface ConferenceProbs {
@@ -11,16 +12,23 @@ interface ConferenceProbs {
 const ConferenceStandingsPage = async () => {
 
 
-  // get latest division win probabilities 
+  const allEvents = await getAllEvents();
+  const allTeams = await getAllTeams();
 
-  const { nfcRankings, afcRankings } = await getConferenceRankings("AFC");
+  const nfcTeams = allTeams.filter((team) => team.division.startsWith("NFC")).map((team) => team.id);
+  const afcTeams = allTeams.filter((team) => team.division.startsWith("AFC")).map((team) => team.id);
+
+  const teamRecordRows = getTeamRecord(allEvents, allTeams);
+
+  const nfcTeamsRanked = rankTeams(nfcTeams, allEvents, teamRecordRows, 'conference').map((team) => teamRecordRows[team]);
+  const afcTeamsRanked = rankTeams(afcTeams, allEvents, teamRecordRows, 'conference').map((team) => teamRecordRows[team]);
 
 
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-8">
-      <Standings title="NFC" orderedTeams={nfcRankings} />
-      <Standings title="AFC" orderedTeams={afcRankings} />
+    <div className="flex flex-col gap-6 mt-8">
+      <Standings title="NFC" orderedRecordRows={nfcTeamsRanked} />
+      <Standings title="AFC" orderedRecordRows={afcTeamsRanked} />
 
     </div>
   )

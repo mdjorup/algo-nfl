@@ -63,4 +63,19 @@ export interface Team {
     ties: number;
 }
 
+export interface TeamRecordRow {
+    teamId: string;
+    teamName: string;
+    wins: number;
+    losses: number;
+    ties: number;
+    pointsFor: number;
+    pointsAgainst: number;
+    divisionWins: number;
+    divisionLosses: number;
+    divisionTies: number;
+    conferenceWins: number;
+    conferenceLosses: number;
+    conferenceTies: number;
+}
 export interface FullEvent {}
