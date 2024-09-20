@@ -48,9 +48,16 @@ def load_update_queue(events: List[Event]):
     GAME_UPDATE_QUEUE.add("", now)
 
     for event in events:
+        # filter out events that are completed or more than 6 hours old
         if event.completed or now > event.commence_time + timedelta(hours=6):
             continue
 
-        ODDS_UPDATE_QUEUE.add(event.id, now)
+        # determine when to update the game
+        if now < event.commence_time - timedelta(weeks=1):
+            GAME_UPDATE_QUEUE.add(event.id, now + timedelta(days=1))
+        elif now < event.commence_time - timedelta(days=1):
+            GAME_UPDATE_QUEUE.add(event.id, now + timedelta(hours=6))
+        else:
+            ODDS_UPDATE_QUEUE.add(event.id, now)
 
     print(f"Finished loading update queues")

@@ -16,10 +16,13 @@ async def run_odds_update(event_id: str) -> Optional[datetime]:
 
     odds = get_odds_api_event_odds(event_id)
 
+    now = datetime.now(timezone.utc)
+
+    if len(odds) == 0:
+        return now + timedelta(minutes=5)
+
     for odd in odds:
         insert_event_odds(odd)
-
-    now = datetime.now(timezone.utc)
 
     if now < event.commence_time - timedelta(weeks=1):
         return now + timedelta(days=1)

@@ -34,12 +34,10 @@ async def main():
 
     load_update_queue(all_events)
 
-    odds_task = (
-        None  # asyncio.create_task(process_queue(ODDS_UPDATE_QUEUE, run_odds_update))
-    )
+    odds_task = asyncio.create_task(process_queue(ODDS_UPDATE_QUEUE, run_odds_update))
     game_task = asyncio.create_task(process_queue(GAME_UPDATE_QUEUE, run_game_update))
 
-    await asyncio.gather(game_task)
+    await asyncio.gather(game_task, odds_task)
 
 
 if __name__ == "__main__":

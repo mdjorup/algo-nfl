@@ -72,8 +72,9 @@ def get_odds_api_event_odds(event_id: str) -> List[EventOdds]:
     if response.status_code == 429:
         time.sleep(5)
         response = requests.get(endpoint, params=params)
-
-    if response.status_code != 200:
+    elif response.status_code == 404:
+        return []
+    elif response.status_code != 200:
         return []
 
     data = response.json()
