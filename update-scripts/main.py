@@ -5,7 +5,13 @@ from config import SEASON
 from database import get_events
 from game_updater import run_game_update
 from odds_updater import run_odds_update
-from update_queues import GAME_UPDATE_QUEUE, ODDS_UPDATE_QUEUE, load_update_queue
+from team_record_updater import run_team_record_update
+from update_queues import (
+    GAME_UPDATE_QUEUE,
+    ODDS_UPDATE_QUEUE,
+    TEAM_RECORD_UPDATE_QUEUE,
+    load_update_queue,
+)
 
 
 async def process_queue(queue, update_func):
@@ -36,8 +42,11 @@ async def main():
 
     odds_task = asyncio.create_task(process_queue(ODDS_UPDATE_QUEUE, run_odds_update))
     game_task = asyncio.create_task(process_queue(GAME_UPDATE_QUEUE, run_game_update))
+    team_record_task = asyncio.create_task(
+        process_queue(TEAM_RECORD_UPDATE_QUEUE, run_team_record_update)
+    )
 
-    await asyncio.gather(game_task, odds_task)
+    await asyncio.gather(game_task, odds_task, team_record_task)
 
 
 if __name__ == "__main__":

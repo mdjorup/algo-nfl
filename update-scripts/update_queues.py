@@ -1,4 +1,5 @@
 import heapq
+import random
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from typing import List, Optional
@@ -40,12 +41,14 @@ class UpdateQueue:
 
 ODDS_UPDATE_QUEUE = UpdateQueue()
 GAME_UPDATE_QUEUE = UpdateQueue()
+TEAM_RECORD_UPDATE_QUEUE = UpdateQueue()
 
 
 def load_update_queue(events: List[Event]):
     now = datetime.now(timezone.utc)
 
     GAME_UPDATE_QUEUE.add("", now)
+    TEAM_RECORD_UPDATE_QUEUE.add("", now)
 
     for event in events:
         # filter out events that are completed or more than 6 hours old
@@ -53,10 +56,10 @@ def load_update_queue(events: List[Event]):
             continue
 
         # determine when to update the game
-        if now < event.commence_time - timedelta(weeks=1):
-            GAME_UPDATE_QUEUE.add(event.id, now + timedelta(days=1))
-        elif now < event.commence_time - timedelta(days=1):
-            GAME_UPDATE_QUEUE.add(event.id, now + timedelta(hours=6))
+        if now < event.commence_time - timedelta(hours=6):
+            random_seconds = random.randint(0, 21600)  # 86400 seconds in a day
+
+            GAME_UPDATE_QUEUE.add(event.id, now + timedelta(seconds=random_seconds))
         else:
             ODDS_UPDATE_QUEUE.add(event.id, now)
 
