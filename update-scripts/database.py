@@ -24,8 +24,7 @@ def get_events(season: str) -> List[Event]:
                     event["home_score"],
                     event["away_score"],
                 )
-                if not new_event.completed:
-                    events.append(new_event)
+                events.append(new_event)
     finally:
         pool.putconn(conn)
 
