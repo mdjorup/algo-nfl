@@ -18,7 +18,7 @@ from tqdm import tqdm
 load_dotenv()
 
 CURRENT_SEASON = "2024"
-SIMULATION_GROUP = 5
+SIMULATION_GROUP = 6
 N_SIMULATIONS = 100000
 
 dbname = os.getenv("DB_DATABASE")
@@ -734,7 +734,8 @@ def compute_rankings(
             current_win_list.append(t)
             latest_wins = wins
     else:
-        final_ranking.extend(current_win_list)
+        ranked_order = break_tie(results, current_win_list, ranking_type)
+        final_ranking.extend(ranked_order)
 
     return final_ranking
 
