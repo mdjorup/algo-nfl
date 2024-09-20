@@ -6,71 +6,68 @@ import { columns, SeasonSimulationRow } from './columns';
 
 const getSeasonSimulations = async (): Promise<SeasonSimulationRow[]> => {
 
-  const results = await query<SeasonSimulationRow>(`
+  const results = await query<{
+    make_playoffs_probability: number;
+    win_division_probability: number;
+    win_conference_probability: number;
+    expected_wins: number;
+    name: string;
+    id: string;
+    division: string;
+    wins: number;
+    losses: number;
+    ties: number;
+    make_playoffs_probability_change: number;
+    win_division_probability_change: number;
+    win_conference_probability_change: number;
+
+  }>(`
+    WITH current_simulation AS (
+      SELECT *
+      FROM public.nfl_season_simulation
+      WHERE created_at = (SELECT MAX(created_at) FROM public.nfl_season_simulation)
+    ),
+    previous_simulation AS (
+      SELECT *
+      FROM public.nfl_season_simulation
+      WHERE created_at = (
+        SELECT MAX(created_at)
+        FROM public.nfl_season_simulation
+        WHERE created_at <= (SELECT MAX(created_at) - INTERVAL '1 week' FROM public.nfl_season_simulation)
+      )
+    )
     SELECT 
-        nss.make_playoffs_probability,
-        nss.win_division_probability,
-        nss.win_conference_probability,
-        t.name
+      cs.make_playoffs_probability,
+      cs.win_division_probability,
+      cs.win_conference_probability,
+      cs.expected_wins,
+      t.name,
+      t.id,
+      t.division,
+      t.wins,
+      t.losses,
+      t.ties,
+      cs.make_playoffs_probability - COALESCE(ps.make_playoffs_probability, 0) AS make_playoffs_probability_change,
+      cs.win_division_probability - COALESCE(ps.win_division_probability, 0) AS win_division_probability_change,
+      cs.win_conference_probability - COALESCE(ps.win_conference_probability, 0) AS win_conference_probability_change
     FROM 
-        public.nfl_season_simulation nss
+      current_simulation cs
     JOIN 
-        public.teams t ON nss.team_id = t.id
-    WHERE 
-        nss.simulation_group = (
-            SELECT MAX(simulation_group) 
-            FROM public.nfl_season_simulation
-        )
+      public.teams t ON cs.team_id = t.id
+    LEFT JOIN
+      previous_simulation ps ON cs.team_id = ps.team_id
     ORDER BY 
-        nss.id;
+      cs.id;
     `, []);
 
 
-
-  return results;
+  return results.map(row => ({
+    ...row,
+    make_playoffs_probability_change: Number(row.make_playoffs_probability_change),
+    win_division_probability_change: Number(row.win_division_probability_change),
+    win_conference_probability_change: Number(row.win_conference_probability_change)
+  }));;
 }
-
-const getBackgroundColor = (probability: number) => {
-  // Red: hsl(0, 84.2%, 60.2%)
-  // Light Grey: hsl(0, 0%, 75%)
-  // Green: hsl(142.1, 76.2%, 36.3%)
-
-  const redHue = 0;
-  const redSaturation = 84.2;
-  const redLightness = 60.2;
-
-  const greyHue = 0;
-  const greySaturation = 0;
-  const greyLightness = 75;
-
-  const greenHue = 142.1;
-  const greenSaturation = 76.2;
-  const greenLightness = 36.3;
-
-  // Sigmoid function for non-linear interpolation
-  const sigmoid = (x: number): number => {
-    return 1 / (1 + Math.exp(-12 * (x - 0.5)));
-  };
-
-  // Apply sigmoid function to probability
-  const t = sigmoid(probability);
-
-  let hue, saturation, lightness;
-
-  if (probability <= 0.5) {
-    // Interpolate between red and light grey
-    hue = redHue;
-    saturation = redSaturation + (greySaturation - redSaturation) * t * 2;
-    lightness = redLightness + (greyLightness - redLightness) * t * 2;
-  } else {
-    // Interpolate between light grey and green
-    hue = greyHue + (greenHue - greyHue) * (t - 0.5) * 2;
-    saturation = greySaturation + (greenSaturation - greySaturation) * (t - 0.5) * 2;
-    lightness = greyLightness + (greenLightness - greyLightness) * (t - 0.5) * 2;
-  }
-
-  return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
-};
 
 
 const PlayoffPicturePage = async () => {
@@ -84,8 +81,11 @@ const PlayoffPicturePage = async () => {
       <h1 className='text-3xl font-bold mb-8'>
         2024 NFL Post Season Probabilities
       </h1>
-      <p className='mb-8'>
-        The following table shows the playoff probabilities for each NFL team based on 100,000 simulations of the remaining games in the season. All games are simulated using the current odds of every game. The probabilities are based on the number of times each team made the playoffs, won their division, and won the conference in the simulations.
+      <p className='mb-4'>
+        The following table shows the playoff probabilities for each NFL team based on 100,000 simulations of the remaining games in the season. All games are simulated using the current odds of every game.
+      </p>
+      <p className='mb-4'>
+        All changes are relative to their probabilities about 1 week ago.
       </p>
       <DataTable columns={columns} data={data} />
     </div>

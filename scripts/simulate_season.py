@@ -18,7 +18,7 @@ from tqdm import tqdm
 load_dotenv()
 
 CURRENT_SEASON = "2024"
-SIMULATION_GROUP = 6
+SIMULATION_GROUP = 7
 N_SIMULATIONS = 100000
 
 dbname = os.getenv("DB_DATABASE")

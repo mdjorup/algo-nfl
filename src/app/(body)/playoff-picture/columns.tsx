@@ -4,69 +4,59 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatAsPercent } from "@/lib/format-utils";
 import { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown } from "lucide-react";
+import { ArrowUpDown, Award, ChevronDown, ChevronUp, Medal, Trophy } from "lucide-react";
 import Image from "next/image";
-
 
 export type SeasonSimulationRow = {
   name: string;
+  wins: number;
+  losses: number;
+  ties: number;
+  division: string;
+  expected_wins: number;
   make_playoffs_probability: number;
+  make_playoffs_probability_change: number;
   win_division_probability: number;
+  win_division_probability_change: number;
   win_conference_probability: number;
+  win_conference_probability_change: number;
 }
-
 const getBackgroundColor = (probability: number) => {
-  // Red: hsl(0, 84.2%, 60.2%)
-  // Light Grey: hsl(0, 0%, 75%)
-  // Green: hsl(142.1, 76.2%, 36.3%)
+  const lightBlue = [240, 50, 95]; // HSL values
+  const darkBlue = [220, 80, 40];  // HSL values
 
-  const redHue = 0;
-  const redSaturation = 84.2;
-  const redLightness = 60.2;
-
-  const greyHue = 0;
-  const greySaturation = 0;
-  const greyLightness = 75;
-
-  const greenHue = 142.1;
-  const greenSaturation = 76.2;
-  const greenLightness = 36.3;
-
-  // Sigmoid function for non-linear interpolation
-  const sigmoid = (x: number): number => {
-    return 1 / (1 + Math.exp(-12 * (x - 0.5)));
+  const interpolate = (start: number, end: number, t: number) => {
+    return start + (end - start) * t;
   };
 
-  // Apply sigmoid function to probability
-  const t = sigmoid(probability);
+  const h = interpolate(lightBlue[0], darkBlue[0], probability);
+  const s = interpolate(lightBlue[1], darkBlue[1], probability);
+  const l = interpolate(lightBlue[2], darkBlue[2], probability);
 
-  let hue, saturation, lightness;
-
-  if (probability <= 0.5) {
-    // Interpolate between red and light grey
-    hue = redHue;
-    saturation = redSaturation + (greySaturation - redSaturation) * t * 2;
-    lightness = redLightness + (greyLightness - redLightness) * t * 2;
-  } else {
-    // Interpolate between light grey and green
-    hue = greyHue + (greenHue - greyHue) * (t - 0.5) * 2;
-    saturation = greySaturation + (greenSaturation - greySaturation) * (t - 0.5) * 2;
-    lightness = greyLightness + (greenLightness - greyLightness) * (t - 0.5) * 2;
-  }
-
-  return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+  return `hsl(${h}, ${s}%, ${l}%)`;
 };
 
-const ProbabilityBadge = ({ probability }: { probability: number }) => (
-  <Badge
-    style={{
-      backgroundColor: getBackgroundColor(probability),
-      color: 'white',
-    }}
-    className="ml-4"
-  >
-    {formatAsPercent(probability)}
-  </Badge>
+const ProbabilityCell = ({ probability, change }: { probability: number; change: number }) => (
+  <div className="flex flex-col items-center">
+    <Badge
+      style={{
+        backgroundColor: getBackgroundColor(probability),
+        color: probability > 0.5 ? 'white' : 'black',
+      }}
+      className="text-sm font-bold mb-1"
+    >
+      {formatAsPercent(probability, 1)}
+    </Badge>
+    <div className={`flex items-center text-xs font-semibold ${change > 0 ? 'text-green-600 dark:text-green-400' :
+      change < 0 ? 'text-red-600 dark:text-red-400' :
+        'text-gray-600 dark:text-gray-400'
+      }`}>
+      {change > 0 ? <ChevronUp size={12} /> :
+        change < 0 ? <ChevronDown size={12} /> :
+          null}
+      <span>{formatAsPercent(change, 1)}</span>
+    </div>
+  </div>
 );
 
 export const columns: ColumnDef<SeasonSimulationRow>[] = [
@@ -74,60 +64,95 @@ export const columns: ColumnDef<SeasonSimulationRow>[] = [
     accessorKey: 'name',
     header: "Team",
     cell: ({ row }) => {
+      const recordString = `${row.original.wins}-${row.original.losses}-${row.original.ties}`;
       return (
-        <div className="flex gap-3 justify-start items-center font-bold">
+        <div className="flex flex-col lg:flex-row gap-3 lg:items-center items-center lg:gap-3">
           <Image src={`/${row.getValue<string>("name")}.png`} alt={row.getValue("name")} width={35} height={35} />
-          <span className="hidden sm:block">
+          <span className="hidden sm:block text-lg font-bold text-gray-800 dark:text-gray-200">
             {row.getValue<string>("name").split(" ").pop()}
+          </span>
+          <span className="hidden sm:block text-muted-foreground text-xs">
+            {recordString}
           </span>
         </div>
       )
     }
   },
   {
-    accessorKey: 'make_playoffs_probability',
-    header: ({ column }) => {
-      return (
-        <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
-          Make Playoffs
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      )
-    },
+    accessorKey: 'division',
+    header: "Division",
     cell: ({ row }) => {
-      const val = parseFloat(row.getValue("make_playoffs_probability"));
-      return <ProbabilityBadge probability={val} />
+      return <span className="text-sm">{row.getValue("division")}</span>
     }
+  },
+  {
+    accessorKey: 'expected_wins',
+    header: "Proj. Record",
+    cell: ({ row }) => {
+      const expected_wins = Math.round(row.getValue("expected_wins"));
+      const expected_losses = 17 - expected_wins;
+      const recordString = `${expected_wins}-${expected_losses}`;
+      return <span className="text-md font-bold pl-2">{recordString}</span>
+    }
+  },
+  {
+    accessorKey: 'make_playoffs_probability',
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        className="hover:bg-blue-100 dark:hover:bg-blue-900 transition-colors duration-200"
+      >
+        <Trophy className="mr-2 h-4 w-4 text-blue-500" />
+        Make Playoffs
+        <ArrowUpDown className="ml-2 h-4 w-4" />
+      </Button>
+    ),
+    cell: ({ row }) => (
+      <ProbabilityCell
+        probability={row.getValue("make_playoffs_probability")}
+        change={row.original.make_playoffs_probability_change}
+      />
+    )
   },
   {
     accessorKey: 'win_division_probability',
-    header: ({ column }) => {
-      return (
-        <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
-          Win Division
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      )
-    },
-    cell: ({ row }) => {
-      const val = parseFloat(row.getValue("win_division_probability"));
-      return <ProbabilityBadge probability={val} />
-    }
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        className="hover:bg-green-100 dark:hover:bg-green-900 transition-colors duration-200"
+      >
+        <Medal className="mr-2 h-4 w-4 text-green-500" />
+        Win Division
+        <ArrowUpDown className="ml-2 h-4 w-4" />
+      </Button>
+    ),
+    cell: ({ row }) => (
+      <ProbabilityCell
+        probability={row.getValue("win_division_probability")}
+        change={row.original.win_division_probability_change}
+      />
+    )
   },
   {
     accessorKey: 'win_conference_probability',
-    header: ({ column }) => {
-      return (
-        <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
-          Win Conference
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      )
-    },
-    cell: ({ row }) => {
-      const val = parseFloat(row.getValue("win_conference_probability"));
-      return <ProbabilityBadge probability={val} />
-    }
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        className="hover:bg-purple-100 dark:hover:bg-purple-900 transition-colors duration-200"
+      >
+        <Award className="mr-2 h-4 w-4 text-purple-500" />
+        Win Conference
+        <ArrowUpDown className="ml-2 h-4 w-4" />
+      </Button>
+    ),
+    cell: ({ row }) => (
+      <ProbabilityCell
+        probability={row.getValue("win_conference_probability")}
+        change={row.original.win_conference_probability_change}
+      />
+    )
   },
-
-]
+];
