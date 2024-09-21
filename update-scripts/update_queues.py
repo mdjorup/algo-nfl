@@ -58,8 +58,7 @@ def load_update_queue(events: List[Event]):
         # determine when to update the game
         if now < event.commence_time - timedelta(hours=6):
             random_seconds = random.randint(0, 21600)  # 86400 seconds in a day
-
-            GAME_UPDATE_QUEUE.add(event.id, now + timedelta(seconds=random_seconds))
+            ODDS_UPDATE_QUEUE.add(event.id, now + timedelta(seconds=random_seconds))
         else:
             ODDS_UPDATE_QUEUE.add(event.id, now)
 

@@ -38,10 +38,6 @@ async def run_team_record_update(*args) -> Optional[datetime]:
             records[event.home_team_id]["ties"] += 1
             records[event.away_team_id]["ties"] += 1
 
-    for team_id, record in records.items():
-        print(
-            f"Team {team_id} record: {record['wins']}-{record['losses']}-{record['ties']}"
-        )
     conn = pool.getconn()
     try:
         with conn.cursor() as cursor:
