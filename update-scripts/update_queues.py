@@ -42,6 +42,7 @@ class UpdateQueue:
 ODDS_UPDATE_QUEUE = UpdateQueue()
 GAME_UPDATE_QUEUE = UpdateQueue()
 TEAM_RECORD_UPDATE_QUEUE = UpdateQueue()
+SEASON_SIMULATION_QUEUE = UpdateQueue()
 
 
 def load_update_queue(events: List[Event]):
@@ -49,6 +50,7 @@ def load_update_queue(events: List[Event]):
 
     GAME_UPDATE_QUEUE.add("", now)
     TEAM_RECORD_UPDATE_QUEUE.add("", now)
+    SEASON_SIMULATION_QUEUE.add("", now)
 
     for event in events:
         # filter out events that are completed or more than 6 hours old
